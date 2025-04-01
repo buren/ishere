@@ -1,0 +1,91 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ 'main', 'production' ]
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Run tests
+      run: npx vitest run
+
+  deploy-to-preview:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Start GitHub Deployment for Preview
+      uses: bobheadxi/deployments@v1
+      id: preview_deployment
+      with:
+        step: start
+        env: Preview
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Deploy to Development
+      run: npm run deploy
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    - name: Update GitHub Deployment status for Preview
+      uses: bobheadxi/deployments@v1
+      if: always()
+      with:
+        step: finish
+        auto_inactive: true
+        status: ${{ job.status }}
+        ref: ${{ github.head_ref }}
+        env: Preview
+        deployment_id: ${{ steps.preview_deployment.outputs.deployment_id }}
+        env_url: https://dev.wshr.io
+
+  deploy-to-production:
+    needs: test
+    if: github.ref == 'refs/heads/production'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Start GitHub Deployment for Production
+      uses: bobheadxi/deployments@v1
+      id: production_deployment
+      with:
+        step: start
+        env: Production
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Deploy to Production
+      run: npm run deploy-production
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    - name: Update GitHub Deployment status for Production
+      uses: bobheadxi/deployments@v1
+      if: always()
+      with:
+        step: finish
+        auto_inactive: true
+        status: ${{ job.status }}
+        ref: ${{ github.head_ref }}
+        env: Production
+        deployment_id: ${{ steps.production_deployment.outputs.deployment_id }}
+        env_url: https://wshr.io

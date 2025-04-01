@@ -1,0 +1,118 @@
+import { z } from 'zod';
+
+export type ResponseIssueSchema = {
+	code: string;
+	message: string;
+};
+
+export  const ValidationErrorSchema = z.object({
+	success: z.boolean(),
+	error: z.object({
+		issues: z.array(
+			z.object({
+				validation: z.string().optional(),
+				maximum: z.number().optional(),
+				minimum: z.number().optional(),
+				type: z.string().optional(),
+				inclusive: z.boolean().optional(),
+				exact: z.boolean().optional(),
+				code: z.string(),
+				message: z.string(),
+				path: z.array(z.union([z.string(), z.number()])),
+			})
+		),
+		name: z.string(),
+	}),
+});
+
+export const jsonResponseDoc = (status: number, schema: z.ZodType, description: string) => ({
+	[status]: {
+		content: { 'application/json': { schema } },
+		description,
+	},
+})
+
+// Doc helpers
+export const serverErrorResponseDoc = () => ({
+	500: {
+		content: { 'application/json': { schema: ValidationErrorSchema } },
+		description: 'Internal server error.',
+	},
+	503: {
+		content: { 'application/json': { schema: ValidationErrorSchema } },
+		description: 'Service Unavailable.',
+	},
+});
+
+export const standardResponsesDoc = (
+	{ auth = true, validations = false }: { auth?: boolean; validations?: boolean } = { auth: true, validations: false }
+) => ({
+	...(validations
+		? {
+				400: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Validation error.' },
+		  }
+		: {}),
+	404: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Not found.' },
+	...serverErrorResponseDoc(),
+	...(auth
+		? {
+				401: {
+					content: { 'application/json': { schema: ValidationErrorSchema } },
+					description: 'Authorization error.',
+				},
+				403: {
+					content: { 'application/json': { schema: ValidationErrorSchema } },
+					description: 'Authentication error.',
+				},
+		  }
+		: {}),
+});
+
+export const buildRequestDoc = ({ schema, auth = true }: { schema: z.ZodType; auth?: boolean }) => ({
+	body: { content: { 'application/json': { schema } } },
+	// TODO this shouldn't really be required, since we define the auth schema
+	// in the Scalar docs, but lets circle back to this later
+	...(
+		auth
+			? {
+					headers: z.object({
+						Authorization: z.string().describe('`Authorization: api-key {your-api-key}`.'),
+					}),
+				}
+			: {}
+	),
+});
+
+export const buildSlackRequestDoc = ({ schema }: { schema: z.ZodType }) => ({
+	// TODO what content type is there form formData?
+	body: { content: { 'application/x-www-form-urlencoded': { schema } } },
+	query: z.object({
+		apiKey: z.string().describe('Pass API key as query param: `apiKey={your-api-key}`.'),
+	}),
+});
+
+// Response data
+export const internalServerErrorResponseData = () => ({
+	success: false,
+	error: {
+		issues: [{
+			code: 'internal_server_error',
+			message: 'Internal server error.',
+		}],
+		name: 'InternalServerError',
+	},
+});
+
+export const notFoundResponseData = (issues?: ResponseIssueSchema[]) => ({
+	success: false,
+	error: {
+		issues: [
+			...(issues || []),
+			{
+				code: 'not_found',
+				message: 'Page not found.',
+			},
+		],
+		name: 'NotFoundError',
+	},
+});

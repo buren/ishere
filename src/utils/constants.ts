@@ -1,0 +1,9 @@
+export const minimumShortPathLength = 3;
+export const maximumShortPathLength = 100;
+export const defaultShortPathLength = 5;
+export const maximumNamespaceLength = 40;
+export const minimumExpirationTtl = 60;
+export const linkIdPattern = /^[a-zA-Z0-9_-]+$/;
+export const HEALTH_KEY = 'health';
+export const reservedPaths = ['api', 'qr', HEALTH_KEY];
+export const legacyApiKeyHeader = 'X-API-TOKEN';

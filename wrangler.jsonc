@@ -6,42 +6,66 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "ishere-v2",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-03-20",
+	"compatibility_date": "2025-03-10",
+
+	// Logs
 	"observability": {
 		"enabled": true
-	}
-	/**
-	 * Smart Placement
-	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
-	 */
-	// "placement": { "mode": "smart" },
+	},
 
-	/**
-	 * Bindings
-	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
-	 * databases, object storage, AI inference, real-time communication and more.
-	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
-	 */
+	// Dev configuration
+  "vars": {
+    "ENVIRONMENT": "development",
+    "ACCOUNT_ID": "5fa4ed4d2fd86702c5bb6cb04e0b5b36"
+  },
 
-	/**
-	 * Environment Variables
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
-	 */
-	// "vars": { "MY_VARIABLE": "production_value" },
-	/**
-	 * Note: Use secrets to store sensitive data.
-	 * https://developers.cloudflare.com/workers/configuration/secrets/
-	 */
+  "routes": [
+    { "pattern": "dev.wshr.io", "custom_domain": true }
+  ],
 
-	/**
-	 * Static Assets
-	 * https://developers.cloudflare.com/workers/static-assets/binding/
-	 */
-	// "assets": { "directory": "./public/", "binding": "ASSETS" },
+  "kv_namespaces": [
+    { "binding": "KV", "id": "de121ffb1f654596a2ac2857b57b1a65", "preview_id": "f463e85382724a1f889bd660074e3ad9" }
+  ],
 
-	/**
-	 * Service Bindings (communicate between multiple Workers)
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
-	 */
-	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+  "d1_databases": [
+    { "binding": "D1", "database_name": "ishere", "database_id": "a08d3c3a-b282-4e7b-900a-bb6eebdd83b5" }
+  ],
+
+  "analytics_engine_datasets": [
+    { "binding": "REDIRECTS_DEV" }
+  ],
+
+  "triggers": {
+    "crons": [ "0 * * * *" ]
+  },
+
+  // Production configuration
+  "env": {
+    "production": {
+      "vars": {
+        "ENVIRONMENT": "production",
+        "ACCOUNT_ID": "5fa4ed4d2fd86702c5bb6cb04e0b5b36"
+      },
+
+      "routes": [
+        { "pattern": "wshr.io", "custom_domain": true }
+      ],
+
+      "kv_namespaces": [
+        { "binding": "KV", "id": "53632936b4f94ca6be48a1ada0ec350f" }
+      ],
+
+      "d1_databases": [
+        { "binding": "D1", "database_name": "ishere-production", "database_id": "456f1e34-f0af-48c1-b361-a3fac293ffa0" }
+      ],
+
+      "analytics_engine_datasets": [
+        { "binding": "REDIRECTS" }
+      ],
+
+      "triggers": {
+        "crons": [ "0 * * * *" ]
+      }
+    }
+  }
 }
