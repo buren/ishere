@@ -1,4 +1,4 @@
-import { ActionHttpStatus } from '../types';
+type ActionHttpStatus = 200 | 400 | 401 | 403 | 404 | 500 | 503;
 
 export default class StatusError extends Error {
 	status: ActionHttpStatus;

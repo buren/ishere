@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LinkWithNamespaceRequestParamsSchema } from '../schema';
 
 export type ResponseIssueSchema = {
 	code: string;
@@ -68,26 +69,25 @@ export const standardResponsesDoc = (
 		: {}),
 });
 
-export const buildRequestDoc = ({ schema, auth = true }: { schema: z.ZodType; auth?: boolean }) => ({
+export const buildRequestDoc = ({ schema, params, auth = true }: { schema: z.ZodType; params?: z.AnyZodObject; auth?: boolean }) => ({
 	body: { content: { 'application/json': { schema } } },
 	// TODO this shouldn't really be required, since we define the auth schema
 	// in the Scalar docs, but lets circle back to this later
-	...(
-		auth
-			? {
-					headers: z.object({
-						Authorization: z.string().describe('`Authorization: api-key {your-api-key}`.'),
-					}),
-				}
-			: {}
-	),
+	...(params ? { params } : {}),
+	...(auth
+		? {
+				headers: z.object({
+					'X-API-KEY': z.string().describe('`X-API-KEY: yourapikey`.'),
+				}),
+		  }
+		: {}),
 });
 
 export const buildSlackRequestDoc = ({ schema }: { schema: z.ZodType }) => ({
 	// TODO what content type is there form formData?
 	body: { content: { 'application/x-www-form-urlencoded': { schema } } },
 	query: z.object({
-		apiKey: z.string().describe('Pass API key as query param: `apiKey={your-api-key}`.'),
+		apiKey: z.string().describe('Pass API key as query param: `apiKey=yourapikey`.'),
 	}),
 });
 

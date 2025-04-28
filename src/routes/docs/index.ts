@@ -1,38 +1,7 @@
-import { cors } from 'hono/cors';
-import { OpenAPIHono } from '@hono/zod-openapi';
-import { apiReference } from '@scalar/hono-api-reference';
-import linkRoutes from './api/links';
-import slackRoutes from './api/slack';
-import healthRoutes from './api/health';
-import redirectRoutes from './redirects';
-import { Context } from 'hono';
-import { notFoundResponseData } from '../openapi';
-import { htmlPage } from '../html';
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { apiReference } from "@scalar/hono-api-reference";
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
-app.use('*', cors());
-
-// Root route
-app.use('/', async (c: Context<{ Bindings: Env }>) => {
-	return c.render(htmlPage({
-		title: 'Short Links	',
-		body: `
-			<h1>IsHere</h1>
-			<p>Short links and QR codes.</p>
-			<p>API: <a href="/docs">/docs</a></p>
-		`
-	}));
-});
-
-// API routes
-app.route('/api/link', linkRoutes);
-app.route('/api/slack', slackRoutes);
-app.route('/api/health', healthRoutes);
-
-// API 404
-app.use('/api/*', async (c: Context<{ Bindings: Env }>) => {
-	return c.json(notFoundResponseData(), 404);
-});
 
 // Scalar API docs
 app.get(
@@ -101,8 +70,5 @@ curl https://wshr.io/api/link      \\
 `,
 	},
 });
-
-// Redirect routes
-app.route('/', redirectRoutes);
 
 export default app;

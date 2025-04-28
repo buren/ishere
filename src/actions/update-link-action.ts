@@ -1,20 +1,15 @@
 import StatusError from '../errors/status-error';
-import { isValidUrl } from '../utils/is-valid-url';
 import { messages } from './constants';
-import { Action, LinkKVSchema, UpdateLinkRequestBody } from '../types';
+import { Action, LinkKVSchema } from '../types';
+import { UpdateLinkRequestBodySchema } from '../schema';
 import { linkWithUrl } from '../utils/link-with-url';
 
-export const updateLinkAction: Action<UpdateLinkRequestBody & { id: string }> = async ({ data, url, env }) => {
+export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string }> = async ({ data, url, env }) => {
 	const { id, destinationUrl, expirationTtl } = data;
 
 	const currentLink = await env.KV.get(id, { type: 'json' });
 	if (!currentLink) {
 		throw new StatusError(404, messages.notFound);
-	}
-
-	if (!isValidUrl(destinationUrl)) {
-		console.log(`Invalid destination url: ${destinationUrl}`);
-		throw new StatusError(400, messages.invalidDestinationUrl);
 	}
 
 	if (expirationTtl && expirationTtl < 60) {
@@ -32,4 +27,3 @@ export const updateLinkAction: Action<UpdateLinkRequestBody & { id: string }> = 
 		data: linkWithUrl(url, link),
 	};
 };
-

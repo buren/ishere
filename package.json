@@ -12,16 +12,17 @@
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.7.5",
-		"@cloudflare/workers-types": "^4.20250320.0",
+		"@cloudflare/workers-types": "^4.20250410.0",
 		"@hono/zod-openapi": "^0.19.2",
 		"@scalar/hono-api-reference": "^0.7.2",
 		"hono": "^4.7.5",
 		"typescript": "^5.5.2",
 		"vitest": "~3.0.7",
-		"wrangler": "^4.3.0",
+		"wrangler": "^4.9.1",
 		"zod": "^3.24.2"
 	},
 	"dependencies": {
+		"nanoid": "^5.1.5",
 		"qrcode-generator": "^1.4.4"
 	}
 }

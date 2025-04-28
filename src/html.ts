@@ -2,7 +2,7 @@ type HtmlPage = {
 	title?: string;
 	body: string;
 }
-const htmlPage = ({ title, body }: HtmlPage) => `<!doctype html>
+export const htmlPage = ({ title, body }: HtmlPage) => `<!doctype html>
 <html>
 
 <head>

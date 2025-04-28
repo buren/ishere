@@ -9,7 +9,7 @@ import {
 import { getLinkStatsAction, isValidTimeGroup } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema } from '../../../types';
+import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 
 const SUCCESS_STATUS = 200;
@@ -22,10 +22,7 @@ app.openapi(
 		path: '/:id/stats/:groupBy',
 		tags: ['API'],
 		middleware: apiKeyAuthMiddleware,
-		request: {
-			...buildRequestDoc({ schema: GetLinkStatsRequestSchema }),
-			params: LinkStatsParamsSchema,
-		},
+		request: buildRequestDoc({ schema: GetLinkStatsRequestSchema, params: LinkStatsParamsSchema }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link stats retrieved successfully.'),
 			...standardResponsesDoc({ validations: false }),

@@ -1,7 +1,12 @@
-export const dbCreateLink = async (
-	db: D1Database,
-	{ id, destinationUrl }: { id: string; destinationUrl: string }
-) => {
-	const statement = db.prepare('INSERT INTO links (id, destinationUrl) VALUES (?, ?)');
-	await statement.bind(id, destinationUrl).run();
+type DbLinkSchema = { id: string; destinationUrl: string; namespace?: string | null };
+
+export const dbCreateLink = async (db: D1Database, { id, destinationUrl, namespace }: DbLinkSchema) => {
+	await db.prepare(
+		`
+		INSERT INTO links (id, destinationUrl, namespace)
+		VALUES (?, ?, ?)
+		`
+	)
+		.bind(id, destinationUrl, namespace)
+		.run();
 };

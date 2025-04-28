@@ -9,7 +9,7 @@ export const healthCheckAction: Action<{}, LinkWithUrls> = async ({ url, env }) 
 		const id = HEALTH_KEY;
 		// Write to KV
 		const createdAt = new Date(Date.now()).toISOString();
-		const link: LinkKVSchema = { destinationUrl: 'https://washere.io', id, createdAt, updatedAt: createdAt };
+		const link: LinkKVSchema = { destinationUrl: 'https://example.com', id, createdAt, updatedAt: createdAt };
 		await env.KV.put(id, JSON.stringify(link));
 
 		// Get KV

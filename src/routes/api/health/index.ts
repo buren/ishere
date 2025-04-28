@@ -4,7 +4,7 @@ import { healthCheckAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
 import { buildRequestDoc, internalServerErrorResponseData, jsonResponseDoc, serverErrorResponseDoc } from '../../../openapi';
-import { LinkResponseSchema } from '../../../types';
+import { LinkResponseSchema } from '../../../schema';
 
 const SUCCESS_STATUS = 200;
 

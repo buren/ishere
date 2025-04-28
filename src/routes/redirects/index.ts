@@ -1,38 +1,37 @@
 import { getLinkWithD1Fallback } from '../../utils/get-link-with-d1-fallback';
-import { LinkKVSchema, LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../types';
+import { LinkKVSchema } from '../../types';
+import { LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../schema';
 import { notFoundHtml } from '../../html';
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { linkWithUrl } from '../../utils/link-with-url';
 import qrResponse from '../../utils/qr-response';
-
-type MaybeString = string | undefined;
-type MaybeNumber = number | undefined;
+import trackLinkRedirect from '../../analytics/track-link-redirect';
 
 // Link shortening routes
-const trackRedirect = async (id: string, { cf, headers }: Request, env: Env) => {
-	const dataset = env.ENVIRONMENT === 'development' ? env.REDIRECTS_DEV : env.REDIRECTS;
-	console.log(`Writing analytics data point (${env.ENVIRONMENT})`);
+const app = new OpenAPIHono<{ Bindings: Env }>();
 
-	dataset.writeDataPoint({
-		// NOTE the below is order dependent
-		blobs: [
-			id,
-			headers.get('user-agent'),
-			// TODO we need to double check that c.req.cf exists in Hono
-			(cf?.colo as MaybeString) || null,
-			(cf?.country as MaybeString) || null,
-			(cf?.region as MaybeString) || null,
-			(cf?.city as MaybeString) || null,
-			(cf?.metroCode as MaybeString) || null,
-			(cf?.timezone as MaybeString) || null,
-		],
-		doubles: [(cf?.latitude as MaybeNumber) || 0, (cf?.longitude as MaybeNumber) || 0],
-		indexes: [id],
-	});
+const qrResponseDoc = {
+	200: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'QR code returned successfully.',
+	},
+	404: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Short link not found.',
+	},
 };
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const redirectResponseDoc = {
+	302: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Redirects link',
+	},
+	404: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Short link not found.',
+	},
+};
 
 app.openapi(
 	createRoute({
@@ -43,16 +42,7 @@ app.openapi(
 			params: LinkWithNRequestParamsSchema,
 			query: LinkQrRequestOptionsSchema,
 		},
-		responses: {
-			200: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'QR code returned successfully.',
-			},
-			404: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'Short link not found.',
-			},
-		},
+		responses: qrResponseDoc,
 		summary: 'QR code for short link',
 		description: 'Return QR code for short link in various formats. Available formats: png, svg and html.',
 	}),
@@ -84,19 +74,8 @@ app.openapi(
 		method: 'get',
 		path: '/:id',
 		tags: ['Redirects'],
-		request: {
-			params: LinkWithNRequestParamsSchema,
-		},
-		responses: {
-			302: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'Redirects link',
-			},
-			404: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'Short link not found.',
-			},
-		},
+		request: { params: LinkWithNRequestParamsSchema },
+		responses: redirectResponseDoc,
 		summary: 'Redirect short link',
 		description: 'Redirect short link to destination URL.',
 	}),
@@ -111,7 +90,7 @@ app.openapi(
 
 		const { destinationUrl } = value as LinkKVSchema;
 		console.log(`Redirecting /${id} to ${destinationUrl}`);
-		c.executionCtx.waitUntil(trackRedirect(id, c.req as unknown as Request, c.env));
+		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req as unknown as Request, c.env));
 
 		return c.redirect(destinationUrl, 302);
 	}
@@ -126,16 +105,7 @@ app.openapi(
 			params: LinkWithNamespaceRequestParamsSchema,
 			query: LinkQrRequestOptionsSchema,
 		},
-		responses: {
-			200: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'QR code returned successfully.',
-			},
-			404: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'Short link not found.',
-			},
-		},
+		responses: qrResponseDoc,
 		summary: 'QR code for link with namespace',
 		description: 'Return QR code for short link in various formats. Available formats: png, svg and html.',
 	}),
@@ -168,19 +138,8 @@ app.openapi(
 		method: 'get',
 		path: '/:namespace/:shortPath',
 		tags: ['Redirects'],
-		request: {
-			params: LinkWithNamespaceRequestParamsSchema,
-		},
-		responses: {
-			302: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'Redirects link',
-			},
-			404: {
-				content: { 'text/html': { schema: z.string() } },
-				description: 'Short link not found.',
-			},
-		},
+		request: { params: LinkWithNamespaceRequestParamsSchema },
+		responses: redirectResponseDoc,
 		summary: 'Redirect short link with namespace',
 		description: 'Redirect short link to destination URL.',
 	}),
@@ -196,7 +155,7 @@ app.openapi(
 
 		const { destinationUrl } = value as LinkKVSchema;
 		console.log(`Redirecting /${id} to ${destinationUrl}`);
-		c.executionCtx.waitUntil(trackRedirect(id, c.req as unknown as Request, c.env));
+		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req as unknown as Request, c.env));
 
 		return c.redirect(destinationUrl, 302);
 	}

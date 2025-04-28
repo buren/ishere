@@ -1,6 +1,5 @@
-import { Next } from 'hono';
-import { AppContext } from '../types';
-import { legacyApiKeyHeader } from '../utils/constants';
+import { Context, Next } from 'hono';
+import { apiKeyHeader, legacyApiKeyHeader } from '../utils/constants';
 
 const invalidAuth = {
 	success: false,
@@ -9,7 +8,7 @@ const invalidAuth = {
 			{
 				validation: 'authorization',
 				code: 'invalid_authorization',
-				message: 'Invalid authorization. Authorization: api-key {your-api-key}',
+				message: 'Invalid authorization. X-API-KEY: yourapitoken',
 				path: [],
 			},
 		],
@@ -23,8 +22,8 @@ const invalidApiKey = {
 		issues: [
 			{
 				validation: 'authorization',
-				code: 'invalid_api_key',
-				message: 'Invalid API key. Authorization: api-key {your-api-key}',
+				code: 'invalid_api_token',
+				message: 'Invalid API key. X-API-KEY: yourapitoken',
 				path: [],
 			},
 		],
@@ -32,16 +31,10 @@ const invalidApiKey = {
 	},
 };
 
-export default async function apiKeyAuthMiddleware(c: AppContext, next: Next) {
-	const legacyHeaderApiKey = c.req.header(legacyApiKeyHeader);
-	if (legacyApiKeyHeader && legacyHeaderApiKey !== c.env.API_TOKEN) {
-		return c.json(invalidApiKey, 403);
-	}
+export default async function apiKeyAuthMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+	const apiKey = c.req.header(apiKeyHeader) || c.req.header(legacyApiKeyHeader);
 
-	const authHeader = c.req.header('Authorization');
-	const [scheme, apiKey] = (authHeader || '').split(' ');
-
-	if (!authHeader || scheme !== 'api-key' || !apiKey) {
+	if (!apiKey) {
 		return c.json(invalidAuth, 401);
 	}
 

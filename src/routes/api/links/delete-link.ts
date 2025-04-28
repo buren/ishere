@@ -8,7 +8,7 @@ import {
 import { deleteLinkAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { DeleteLinkRequestSchema, LinkParamsSchema, LinkResponseSchema } from '../../../types';
+import { DeleteLinkRequestSchema, LinkParamsSchema, LinkResponseSchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 
 const SUCCESS_STATUS = 202;
@@ -21,10 +21,7 @@ app.openapi(
 		path: '/:id',
 		tags: ['API'],
 		middleware: apiKeyAuthMiddleware,
-		request: {
-			...buildRequestDoc({ schema: DeleteLinkRequestSchema }),
-			params: LinkParamsSchema,
-		},
+		request: buildRequestDoc({ schema: DeleteLinkRequestSchema, params: LinkParamsSchema }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link deleted successfully.'),
 			...standardResponsesDoc(),

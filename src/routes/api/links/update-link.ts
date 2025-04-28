@@ -3,7 +3,7 @@ import { buildRequestDoc, internalServerErrorResponseData, jsonResponseDoc, stan
 import { updateLinkAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { UpdateLinkRequestSchema, LinkResponseSchema, LinkParamsSchema } from '../../../types';
+import { UpdateLinkRequestSchema, LinkResponseSchema, LinkParamsSchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 
 const SUCCESS_STATUS = 202;
@@ -16,10 +16,7 @@ app.openapi(
 		path: '/:id',
 		tags: ['API'],
 		middleware: apiKeyAuthMiddleware,
-		request: {
-			...buildRequestDoc({ schema: UpdateLinkRequestSchema }),
-			params: LinkParamsSchema,
-		},
+		request: buildRequestDoc({ schema: UpdateLinkRequestSchema, params: LinkParamsSchema }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link updated successfully.'),
 			...standardResponsesDoc({ validations: true }),

@@ -1,10 +1,10 @@
 import StatusError from '../errors/status-error';
 import { linkRedirectsAnalytics } from '../analytics/link-redirects-analytics';
-import { Action, GroupBy } from '../types';
+import { Action, LinkAnalyticsGroupByOption } from '../types';
 import { isValidPathPattern } from '../utils/is-valid-path-pattern';
 import { messages, durationInSeconds } from './constants';
 
-export const isValidTimeGroup = (groupBy: string) => !!durationInSeconds[groupBy as GroupBy];
+export const isValidTimeGroup = (groupBy: string) => !!durationInSeconds[groupBy as LinkAnalyticsGroupByOption];
 
 export const getLinkStatsAction: Action = async ({ data, env }) => {
 	const { id, groupBy } = data;
@@ -23,7 +23,7 @@ export const getLinkStatsAction: Action = async ({ data, env }) => {
 	}
 
 	try {
-		const groupBySeconds = durationInSeconds[groupBy as GroupBy];
+		const groupBySeconds = durationInSeconds[groupBy as LinkAnalyticsGroupByOption];
 		const analytics = await linkRedirectsAnalytics(env, { id, groupBySeconds });
 		return {
 			status: 200,

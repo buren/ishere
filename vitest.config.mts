@@ -1,11 +1,28 @@
-import { defineWorkersConfig } from '@cloudflare/vitest-pool-workers/config';
+import path from 'node:path';
+import { defineWorkersConfig, readD1Migrations } from '@cloudflare/vitest-pool-workers/config';
 
-export default defineWorkersConfig({
-	test: {
-		poolOptions: {
-			workers: {
-				wrangler: { configPath: './wrangler.jsonc' },
+export default defineWorkersConfig(async () => {
+	// Read all migrations in the `migrations` directory
+	const migrationsPath = path.join(__dirname, 'migrations');
+	const migrations = await readD1Migrations(migrationsPath);
+
+	return {
+		test: {
+			// TODO figure out why uncommenting this causes mocks to fail
+			setupFiles: ['./test/apply-migrations.ts'],
+			poolOptions: {
+				workers: {
+					singleWorker: true,
+					wrangler: { configPath: './wrangler.jsonc' },
+					miniflare: {
+						kvNamespaces: ['KV'],
+						d1Databases: ['D1'],
+						// Add a test-only binding for migrations, so we can apply them in a
+						// setup file
+						bindings: { TEST_MIGRATIONS: migrations },
+					},
+				},
 			},
 		},
-	},
+	};
 });

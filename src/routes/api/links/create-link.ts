@@ -3,7 +3,7 @@ import { buildRequestDoc, internalServerErrorResponseData, jsonResponseDoc, stan
 import { createLinkAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { CreateLinkRequestSchema, LinkResponseSchema } from '../../../types';
+import { CreateLinkRequestSchema, LinkResponseSchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 
 const SUCCESS_STATUS = 201;
@@ -27,15 +27,15 @@ app.openapi(
 
 **Namespace and Short Path Logic**
 
-| Namespace               | Short Path       | Generated ID        | Resulting Path       |
-| ------------------------| ---------------- | ------------------- | -------------------- |
-| \`washere\`             | \`ee2A2\`        | \`washere-ee2A2\`   | \`/washere/ee2A2\`   |
-| *omitted*               | \`my-link\`      | \`my-link\`         | \`/my/link\`  |
-| \`example\`             | \`my-link\`      | \`example-my-link\` | \`/example/my-link\` |
-| \`test\`                | *omitted*        | \`test-abc12\`      | \`/test/abc12\`      |
-| *omitted*               | *omitted*        | \`def345\`          | \`/def345\`          |
+| Namespace          | Short Path      | Generated ID          | Resulting Path         |
+| ------------------ | --------------- | --------------------- | ---------------------- |
+| \`your-brand\`     | \`ee2A2\`       | \`your-brand-ee2A2\`  | \`/your-brand/ee2A2\`  |
+| *omitted*          | \`your-link\`   | \`your-link\`         | \`/your/link\`  		 	  |
+| \`example\`        | \`your-link\`   | \`example-your-link\` | \`/example/your-link\` |
+| \`test\`           | *omitted*       | \`test-abc12\`        | \`/test/abc12\`        |
+| *omitted*          | *omitted*       | \`def345\`            | \`/def345\`            |
 
-_NOTE_: You can always use \`/{namespace}-{path}\` just as well as \`/{namespace}/{path}\`, e.g \`/example-my-link\` instead of \`/example/my-link\`.
+_NOTE_: You can use \`/{namespace}-{path}\` just as well as \`/{namespace}/{path}\`, e.g \`/example-your-link\` instead of \`/example/your-link\`.
 `,
 	}),
 	async (c) => {
@@ -46,6 +46,7 @@ _NOTE_: You can always use \`/{namespace}-{path}\` just as well as \`/{namespace
 				url: c.req.url,
 				data: json,
 				env: c.env,
+				ctx: c.executionCtx,
 			});
 
 			waitFor?.forEach((promise) => c.executionCtx.waitUntil(promise));
