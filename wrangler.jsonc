@@ -16,19 +16,19 @@
 	// Dev configuration
   "vars": {
     "ENVIRONMENT": "development",
-    "ACCOUNT_ID": "5fa4ed4d2fd86702c5bb6cb04e0b5b36"
+    "ACCOUNT_ID": "TODO"
   },
 
-  "routes": [
-    { "pattern": "dev.wshr.io", "custom_domain": true }
-  ],
+  // "routes": [
+  //   { "pattern": "dev.wshr.io", "custom_domain": true }
+  // ],
 
   "kv_namespaces": [
-    { "binding": "KV", "id": "de121ffb1f654596a2ac2857b57b1a65", "preview_id": "f463e85382724a1f889bd660074e3ad9" }
+    { "binding": "KV", "id": "TODO", "preview_id": "TODO" }
   ],
 
   "d1_databases": [
-    { "binding": "D1", "database_name": "ishere", "database_id": "a08d3c3a-b282-4e7b-900a-bb6eebdd83b5" }
+    { "binding": "D1", "database_name": "ishere", "database_id": "TODO" }
   ],
 
   "analytics_engine_datasets": [
@@ -44,7 +44,7 @@
     "production": {
       "vars": {
         "ENVIRONMENT": "production",
-        "ACCOUNT_ID": "5fa4ed4d2fd86702c5bb6cb04e0b5b36"
+        "ACCOUNT_ID": "TODO"
       },
 
       "routes": [
@@ -52,11 +52,11 @@
       ],
 
       "kv_namespaces": [
-        { "binding": "KV", "id": "53632936b4f94ca6be48a1ada0ec350f" }
+        { "binding": "KV", "id": "TODO" }
       ],
 
       "d1_databases": [
-        { "binding": "D1", "database_name": "ishere-production", "database_id": "456f1e34-f0af-48c1-b361-a3fac293ffa0" }
+        { "binding": "D1", "database_name": "ishere-production", "database_id": "TODO" }
       ],
 
       "analytics_engine_datasets": [
