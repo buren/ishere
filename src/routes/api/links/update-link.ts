@@ -30,14 +30,12 @@ app.openapi(
 		const json = c.req.valid('json');
 
 		try {
-			const { data, waitFor } = await updateLinkAction({
+			const { data} = await updateLinkAction({
 				url: c.req.url,
 				data: { ...json, id },
 				env: c.env,
 				ctx: c.executionCtx,
 			});
-
-			waitFor?.forEach((promise) => c.executionCtx.waitUntil(promise));
 
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {

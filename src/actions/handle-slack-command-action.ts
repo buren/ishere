@@ -82,7 +82,6 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 		try {
 			const {
 				data,
-				waitFor = [],
 			} = await createLinkAction({
 				data: {
 					destinationUrl: destinationUrl as string,
@@ -94,8 +93,6 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 				env,
 				ctx,
 			});
-
-			waitFor.forEach((promise) => ctx.waitUntil(promise)); // needs to be explicitly iterated over
 
 			return slackRespondWithMarkdown(`:link: ${data.url} redirects to ${data.destinationUrl}`);
 		} catch (error) {

@@ -25,13 +25,13 @@ app.openapi(
 	}),
 	async (c: Context<{ Bindings: Env }>) => {
 		try {
-			const { data, waitFor } = await healthCheckAction({
+			const { data } = await healthCheckAction({
 				url: c.req.url,
 				data: {},
 				env: c.env,
+				ctx: c.executionCtx,
 			});
 
-			waitFor?.forEach((promise) => c.executionCtx.waitUntil(promise));
 
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {

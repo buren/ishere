@@ -1,4 +1,4 @@
-import { reservedPaths } from '../utils/constants';
+import { defaultShortPathLength, reservedPaths } from '../utils/constants';
 import { LinkKVSchema, Action } from '../types';
 import { CreateLinkRequestBody } from '../schema';
 import { dbCreateLink } from '../db';
@@ -10,7 +10,8 @@ import { kvCreateLink } from '../kv/kv-create-link';
 import { kvGetLink } from '../kv';
 
 export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = async ({ data, url, env, ctx }) => {
-	const { destinationUrl, shortPath, namespace = null, length, expirationTtl } = data;
+	const { destinationUrl, shortPath, namespace = null, length: lengthArg, expirationTtl } = data;
+	const length = lengthArg ?? defaultShortPathLength;
 
 	const withNamespace = (key: string) => [namespace, key].filter(Boolean).join('-');
 	const validateIdNotReserved = (id: string) => reservedPaths.includes(id.split('-')[0]);
@@ -45,8 +46,5 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 	const link = await kvCreateLink(env.KV, linkData);
 	ctx.waitUntil(dbCreateLink(env.D1, link));
 
-	return {
-		data: linkWithUrl(url, link),
-		waitFor: [],
-	};
+	return { data: linkWithUrl(url, link), };
 };

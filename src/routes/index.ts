@@ -7,21 +7,14 @@ import healthRoutes from './api/health';
 import redirectRoutes from './redirects';
 import { Context } from 'hono';
 import { notFoundResponseData } from '../openapi';
-import { bodyContainer, htmlPage } from '../html';
+import { homePageHtml } from '../html';
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
 app.use('*', cors());
 
 // Root route
 app.use('/', async (c: Context<{ Bindings: Env }>) => {
-	return c.render(htmlPage({
-		title: 'IsHere | Short Links',
-		body: bodyContainer(`
-			<h1>IsHere</h1>
-			<p>Short links and QR codes.</p>
-			<p>API: <a href="/docs">/docs</a></p>
-		`)
-	}));
+	return c.render(homePageHtml());
 });
 
 // API routes

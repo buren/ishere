@@ -27,9 +27,6 @@ type ActionContext<TBody = unknown> = {
 	ctx: { waitUntil(promise: Promise<unknown>): void };
 };
 
-type ActionResult<T> = {
-	data: T;
-	waitFor?: Promise<any>[];
-};
+type ActionResult<T> = { data: T; };
 
 export type Action<TBody = any, TResponseBody = any> = (context: ActionContext<TBody>) => Promise<ActionResult<TResponseBody>>;

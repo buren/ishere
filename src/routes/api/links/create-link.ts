@@ -42,14 +42,12 @@ _NOTE_: You can use \`/{namespace}-{path}\` just as well as \`/{namespace}/{path
 		const json = c.req.valid('json');
 
 		try {
-			const { data, waitFor } = await createLinkAction({
+			const { data } = await createLinkAction({
 				url: c.req.url,
 				data: json,
 				env: c.env,
 				ctx: c.executionCtx,
 			});
-
-			waitFor?.forEach((promise) => c.executionCtx.waitUntil(promise));
 
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {
