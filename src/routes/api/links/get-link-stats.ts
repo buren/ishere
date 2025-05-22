@@ -24,7 +24,7 @@ app.openapi(
 		middleware: apiKeyAuthMiddleware,
 		request: buildRequestDoc({ schema: GetLinkStatsRequestSchema, params: LinkStatsParamsSchema }),
 		responses: {
-			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link stats retrieved successfully.'),
+			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link stats retrieved successfully'),
 			...standardResponsesDoc({ validations: false }),
 		},
 		summary: 'Get stats for short link',
@@ -52,6 +52,7 @@ app.openapi(
 				url: c.req.url,
 				data: { id, groupBy },
 				env: c.env,
+				ctx: c.executionCtx,
 			});
 
 			return c.json(data, SUCCESS_STATUS);

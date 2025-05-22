@@ -18,7 +18,7 @@ app.openapi(
 		middleware: apiKeyAuthMiddleware,
 		request: buildRequestDoc({ schema: UpdateLinkRequestSchema, params: LinkParamsSchema }),
 		responses: {
-			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link updated successfully.'),
+			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link updated successfully'),
 			...standardResponsesDoc({ validations: true }),
 		},
 		summary: 'Update short link',
@@ -34,6 +34,7 @@ app.openapi(
 				url: c.req.url,
 				data: { ...json, id },
 				env: c.env,
+				ctx: c.executionCtx,
 			});
 
 			waitFor?.forEach((promise) => c.executionCtx.waitUntil(promise));

@@ -7,6 +7,27 @@ import {
 	minimumExpirationTtl,
 	minimumShortPathLength,
 } from '../utils/constants';
+import { messages } from "../actions";
+
+export const ValidationErrorSchema = z.object({
+	success: z.boolean(),
+	error: z.object({
+		issues: z.array(
+			z.object({
+				validation: z.string().optional(),
+				maximum: z.number().optional(),
+				minimum: z.number().optional(),
+				type: z.string().optional(),
+				inclusive: z.boolean().optional(),
+				exact: z.boolean().optional(),
+				code: z.string(),
+				message: z.string(),
+				path: z.array(z.union([z.string(), z.number()])),
+			})
+		),
+		name: z.string(),
+	}),
+});
 
 export const CreateLinkRequestSchema = z.object({
 	destinationUrl: z.string().url().describe('URL to be shortened.'),
@@ -63,6 +84,15 @@ export const LinkResponseSchema = z.object({
 	destinationUrl: z.string().url().describe('URL to be shortened.'),
 	id: z.string().describe('Short link ID.'),
 	url: z.string().url().describe('Short link URL.'),
+	qrUrl: z.string().url().describe('QR Code for short link URL.'),
+	namespace: z.string().optional().describe('Short link namespace.'),
+	expirationTtl: z.number().optional().describe('Expiration time in seconds.').openapi({ example: 3600 }),
+	createdAt: z.string().datetime().describe('Creation timestamp.'),
+	updatedAt: z.string().datetime().describe('Update timestamp.'),
+});
+
+export const LinkDeleteResponseSchema = z.object({
+	message: z.string().describe('Delete message.').openapi({ example: messages.deleteRequestReceived }),
 });
 
 export const SlackCommandRequestSchema = z.object({

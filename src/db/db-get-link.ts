@@ -1,20 +1,23 @@
 import { LinkDbSchema, LinkKVSchema } from '../types';
 
-export const dbGetLink = async (db: D1Database, { id }: { id: string }): Promise<LinkKVSchema | null> => {
-	const stmt = db.prepare('SELECT destinationUrl FROM links WHERE id = ?');
-	const result = await stmt.bind(id).first();
+const GET_SQL = `
+SELECT * FROM links WHERE id = ?
+`;
+
+export const dbGetLink = async (
+	db: D1Database,
+	{ id }: { id: string }
+): Promise<LinkKVSchema | null> => {
+	const stmt = db.prepare(GET_SQL);
+	const result = (await stmt.bind(id).first()) as LinkDbSchema | null;
 
 	if (!result) {
 		return null;
 	}
 
-	const { destinationUrl, namespace, createdAt, updatedAt } = result as LinkDbSchema;
-
 	return {
-		id,
-		destinationUrl,
-		namespace,
-		createdAt,
-		updatedAt,
+		...result,
+		createdAt: result.createdAt,
+		updatedAt: result.updatedAt
 	};
 };

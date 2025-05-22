@@ -1,31 +1,10 @@
 import { z } from 'zod';
-import { LinkWithNamespaceRequestParamsSchema } from '../schema';
+import { ValidationErrorSchema } from '../schema';
 
 export type ResponseIssueSchema = {
 	code: string;
 	message: string;
 };
-
-export  const ValidationErrorSchema = z.object({
-	success: z.boolean(),
-	error: z.object({
-		issues: z.array(
-			z.object({
-				validation: z.string().optional(),
-				maximum: z.number().optional(),
-				minimum: z.number().optional(),
-				type: z.string().optional(),
-				inclusive: z.boolean().optional(),
-				exact: z.boolean().optional(),
-				code: z.string(),
-				message: z.string(),
-				path: z.array(z.union([z.string(), z.number()])),
-			})
-		),
-		name: z.string(),
-	}),
-});
-
 export const jsonResponseDoc = (status: number, schema: z.ZodType, description: string) => ({
 	[status]: {
 		content: { 'application/json': { schema } },
@@ -37,11 +16,11 @@ export const jsonResponseDoc = (status: number, schema: z.ZodType, description: 
 export const serverErrorResponseDoc = () => ({
 	500: {
 		content: { 'application/json': { schema: ValidationErrorSchema } },
-		description: 'Internal server error.',
+		description: 'Internal server error',
 	},
 	503: {
 		content: { 'application/json': { schema: ValidationErrorSchema } },
-		description: 'Service Unavailable.',
+		description: 'Service Unavailable',
 	},
 });
 
@@ -59,11 +38,11 @@ export const standardResponsesDoc = (
 		? {
 				401: {
 					content: { 'application/json': { schema: ValidationErrorSchema } },
-					description: 'Authorization error.',
+					description: 'Authorization error',
 				},
 				403: {
 					content: { 'application/json': { schema: ValidationErrorSchema } },
-					description: 'Authentication error.',
+					description: 'Authentication error',
 				},
 		  }
 		: {}),
@@ -77,7 +56,7 @@ export const buildRequestDoc = ({ schema, params, auth = true }: { schema: z.Zod
 	...(auth
 		? {
 				headers: z.object({
-					'X-API-KEY': z.string().describe('`X-API-KEY: yourapikey`.'),
+					'X-API-KEY': z.string().describe('`X-API-KEY: yourapikey`.').openapi({ example: 'e78b1a338bc606d74aeab3823e694a40' }),
 				}),
 		  }
 		: {}),

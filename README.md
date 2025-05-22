@@ -9,7 +9,7 @@
 - [ ] Consider alternative error format than the default used by zod
 - [x] Do we really want to use `Authorization: api-key: {api-key}` or should we just use a simple header, like `X-API-KEY` or `Authorization` straight up (related: consider using apiKey or apiToken consistently)
 - [ ] Add expiration to LinkSchema
-
+- [ ] Go through `wrangler.jsonc`, and update all database and KV IDs
 
 __New features__
 - [ ] Consider adding support for a webhook each time a link is resolved

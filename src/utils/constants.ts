@@ -6,5 +6,4 @@ export const minimumExpirationTtl = 60;
 export const linkIdPattern = /^[a-zA-Z0-9_-]+$/;
 export const HEALTH_KEY = 'health';
 export const reservedPaths = ['api', 'qr', HEALTH_KEY, 'about', 'docs', 'privacy', 'terms', 'tos', 'admin'];
-export const legacyApiKeyHeader = 'X-API-TOKEN';
 export const apiKeyHeader = 'X-API-KEY';

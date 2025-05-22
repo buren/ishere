@@ -21,7 +21,7 @@ app.openapi(
 		tags: ['API'],
 		request: buildRequestDoc({ schema: GetLinkRequestSchema, params: LinkParamsSchema, auth: false }),
 		responses: {
-			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link retrieved successfully.'),
+			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link retrieved successfully'),
 			...standardResponsesDoc({ auth: false, validations: false }),
 		},
 		summary: 'Get short link',
@@ -35,6 +35,7 @@ app.openapi(
 				url: c.req.url,
 				data: { id },
 				env: c.env,
+				ctx: c.executionCtx,
 			});
 
 			return c.json(data, SUCCESS_STATUS);

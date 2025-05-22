@@ -18,7 +18,7 @@ app.openapi(
 		middleware: apiKeyAuthMiddleware,
 		request: buildRequestDoc({ schema: CreateLinkRequestSchema }),
 		responses: {
-			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link created successfully.'),
+			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link created successfully'),
 			...standardResponsesDoc({ validations: true }),
 		},
 		summary: 'Create short link',

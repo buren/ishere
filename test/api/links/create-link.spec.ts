@@ -4,6 +4,11 @@ import * as utils from '../../../src/utils/generate-short-id';
 import { reservedPaths } from '../../../src/utils/constants';
 import { messages } from '../../../src/actions';
 import { dbGetLink } from '../../../src/db';
+import { LinkResponseSchema, ValidationErrorSchema } from '../../../src/schema';
+import { z } from 'zod';
+
+type ResponseBody = z.infer<typeof LinkResponseSchema>;
+type ValidationError = z.infer<typeof ValidationErrorSchema>;
 
 describe('POST /api/link', () => {
 	const testDate = new Date('2024-07-26T10:00:00.000Z');
@@ -27,7 +32,7 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 
-		const data = await response.json() as any;
+		const data = await response.json() as ResponseBody;
 
 		expect(data).toStrictEqual({
 			id: 'customPath',
@@ -52,7 +57,7 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 
-		const data = await response.json() as any;
+		const data = await response.json() as ResponseBody;
 		expect(data.id).toBe('brand-link123');
 		expect(response.status).toBe(201);
 	});
@@ -68,7 +73,7 @@ describe('POST /api/link', () => {
 		});
 
 		await waitOnExecutionContext(ctx);
-		const { id } = await response.json() as any;
+		const { id } = await response.json() as ResponseBody;
 
 		const link = await dbGetLink(env.D1, { id: id });
 		expect(link?.id).toBe(id);
@@ -87,7 +92,7 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 
-		const data = await response.json() as any;
+		const data = await response.json() as ResponseBody;
 		expect(data.id).toBe('generatedPath');
 		expect(response.status).toBe(201);
 	});
@@ -107,7 +112,7 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 
-		const data = await response.json() as any;
+		const data = await response.json() as ResponseBody;
 		expect(data.id).toBe('uniquePath');
 		expect(response.status).toBe(201);
 	});
@@ -121,7 +126,7 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 
-		const data = await response.json() as any;
+		const data = (await response.json()) as ValidationError;
 		expect(data.error.issues[0]).toStrictEqual({
 			code: '400',
 			message: messages.idIsReserved,
@@ -141,7 +146,7 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 
-		const data = await response.json() as any;
+		const data = await response.json() as ResponseBody;
 		expect(data.expirationTtl).toBe(expirationTtl);
 		expect(response.status).toBe(201);
 	});
@@ -156,13 +161,13 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': 'invalidapikey' },
 		});
 
-		const data = (await response.json()) as any;
+		const data = (await response.json()) as ResponseBody;
 		expect(data).toStrictEqual({
 			error: {
 				issues: [
 					{
-						code: 'invalid_api_token',
-						message: 'Invalid API key. X-API-KEY: yourapitoken',
+						code: 'invalid_api_key',
+						message: 'Invalid API key. X-API-KEY: yourapikey',
 						path: [],
 						validation: 'authorization',
 					},

@@ -59,12 +59,12 @@ export const htmlPage = ({ title, body }: HtmlPage) => `<!doctype html>
 
 </html>`;
 
-const container = (content: string) =>
+export const bodyContainer = (content: string) =>
 	`<div class="container">${content}</div>`;
 
 // 404 page
 export const notFoundHtml = htmlPage({
-	body: container(`
+	body: bodyContainer(`
 		<h1><span class="highlight">404</span> - Link Not Found</h1>
 
 		<p>

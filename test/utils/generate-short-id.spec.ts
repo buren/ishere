@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateShortId } from '../../src/utils/generate-short-id';
+import { defaultShortPathLength } from '../../src/utils/constants';
 
 describe('generateShortId', () => {
 	const characters = '23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -16,6 +17,11 @@ describe('generateShortId', () => {
 		for (let char of id) {
 			expect(characters).toContain(char);
 		}
+	});
+
+	it('should generate of default length when not given a specified length', () => {
+		const id = generateShortId();
+		expect(id.length).toBe(defaultShortPathLength);
 	});
 
 	it('should generate unique IDs on subsequent calls', () => {

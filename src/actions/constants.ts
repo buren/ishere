@@ -7,7 +7,7 @@ export const messages = {
 	invalidExpirationTtl: 'Minimum value is 60.',
 	idIsReserved: 'Provided shortPath, namespace or shortPath/namespace combination is reserved.',
 	idIsInUse: 'Provided shortPath/namespace combination is already in use.',
-	deleteRequestReceived: 'Delete request received. Can take a few minutes to propagate.',
+	deleteRequestReceived: 'Delete request received. Can take up to a minute to propagate.',
 };
 
 export const durationInSeconds: Record<LinkAnalyticsGroupByOption, number> = { day: 86400, hour: 3600 };

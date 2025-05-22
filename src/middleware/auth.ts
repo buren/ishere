@@ -1,5 +1,5 @@
 import { Context, Next } from 'hono';
-import { apiKeyHeader, legacyApiKeyHeader } from '../utils/constants';
+import { apiKeyHeader } from '../utils/constants';
 
 const invalidAuth = {
 	success: false,
@@ -8,7 +8,7 @@ const invalidAuth = {
 			{
 				validation: 'authorization',
 				code: 'invalid_authorization',
-				message: 'Invalid authorization. X-API-KEY: yourapitoken',
+				message: 'Invalid authorization. X-API-KEY: yourapikey',
 				path: [],
 			},
 		],
@@ -22,8 +22,8 @@ const invalidApiKey = {
 		issues: [
 			{
 				validation: 'authorization',
-				code: 'invalid_api_token',
-				message: 'Invalid API key. X-API-KEY: yourapitoken',
+				code: 'invalid_api_key',
+				message: 'Invalid API key. X-API-KEY: yourapikey',
 				path: [],
 			},
 		],
@@ -32,7 +32,7 @@ const invalidApiKey = {
 };
 
 export default async function apiKeyAuthMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
-	const apiKey = c.req.header(apiKeyHeader) || c.req.header(legacyApiKeyHeader);
+	const apiKey = c.req.header(apiKeyHeader);
 
 	if (!apiKey) {
 		return c.json(invalidAuth, 401);

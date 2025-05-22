@@ -1,12 +1,16 @@
-type DbLinkSchema = { id: string; destinationUrl: string; namespace?: string | null };
+import { LinkDbSchema, LinkKVSchema, PartialBy } from "../types";
 
-export const dbCreateLink = async (db: D1Database, { id, destinationUrl, namespace }: DbLinkSchema) => {
-	await db.prepare(
-		`
-		INSERT INTO links (id, destinationUrl, namespace)
-		VALUES (?, ?, ?)
-		`
-	)
-		.bind(id, destinationUrl, namespace)
+const CREATE_SQL = `
+INSERT INTO links (id, destinationUrl, namespace, expirationTtl, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?, ?)
+`;
+
+export const dbCreateLink = async (
+	db: D1Database,
+	{ id, destinationUrl, namespace, expirationTtl, createdAt, updatedAt }: LinkKVSchema
+) => {
+	await db
+		.prepare(CREATE_SQL)
+		.bind(id, destinationUrl, namespace ?? null, expirationTtl ?? null, createdAt, updatedAt)
 		.run();
 };
