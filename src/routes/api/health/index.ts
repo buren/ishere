@@ -1,9 +1,12 @@
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { healthCheckAction } from '../../../actions';
-import StatusError from '../../../errors/status-error';
-import statusErrorToJson from '../../../utils/status-error-to-json';
-import { buildRequestDoc, internalServerErrorResponseData, jsonResponseDoc, serverErrorResponseDoc } from '../../../openapi';
+import {
+	buildRequestDoc,
+	jsonResponseDoc,
+	serverErrorResponseDoc,
+	serviceUnavailableErrorResponseData,
+} from '../../../openapi';
 import { LinkResponseSchema } from '../../../schema';
 
 const SUCCESS_STATUS = 200;
@@ -32,18 +35,12 @@ app.openapi(
 				ctx: c.executionCtx,
 			});
 
-
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {
 			console.log(error);
 
-			if (error instanceof StatusError) {
-				const { status, data } = statusErrorToJson(error);
-				return c.json(data, status);
-			}
-
 			// NOTE we get a type error if we don't cast to any type here
-			return c.json(internalServerErrorResponseData(), 500) as any;
+			return c.json(serviceUnavailableErrorResponseData(), 503) as any;
 		}
 	}
 );

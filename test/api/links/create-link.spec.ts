@@ -147,7 +147,6 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
 		const data = await response.json() as ResponseBody;
-
 		const expectedExpiresAt = new Date(
 			Date.parse(testDateISO) + expirationTtl * 1000
 		).toISOString();

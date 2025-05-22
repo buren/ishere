@@ -95,12 +95,7 @@ export const LinkResponseSchema = z.object({
 	url: z.string().url().describe('Short link URL.'),
 	qrUrl: z.string().url().describe('QR Code for short link URL.'),
 	namespace: z.string().nullable().optional().describe('Short link namespace.'),
-	expirationTtl: z
-		.number()
-		.nullable()
-		.optional()
-		.describe('Expiration time in seconds.')
-		.openapi({ example: 3600 }),
+	expirationTtl: z.number().nullable().optional().describe('Expiration time in seconds.'),
 	createdAt: z.string().datetime().describe('Creation timestamp.'),
 	updatedAt: z.string().datetime().describe('Update timestamp.'),
 	expiresAt: z.string().datetime().nullable().optional().describe('Expires at timestamp.'),

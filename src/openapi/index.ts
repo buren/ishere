@@ -82,6 +82,19 @@ export const internalServerErrorResponseData = () => ({
 	},
 });
 
+export const serviceUnavailableErrorResponseData = () => ({
+	success: false,
+	error: {
+		issues: [
+			{
+				code: 'service_unavailable',
+				message: 'Service Unavailable.',
+			},
+		],
+		name: 'ServiceUnavailable',
+	},
+});
+
 export const notFoundResponseData = (issues?: ResponseIssueSchema[]) => ({
 	success: false,
 	error: {

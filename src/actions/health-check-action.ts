@@ -3,17 +3,16 @@ import { Action, LinkKVSchema } from '../types';
 import { linkWithUrl, LinkWithUrls } from '../utils/link-with-url';
 import { messages } from './constants';
 import StatusError from '../errors/status-error';
-import { kvGetLink } from '../kv';
+import { kvCreateLink, kvGetLink } from '../kv';
 
 export const healthCheckAction: Action<{}, LinkWithUrls> = async ({ url, env }) => {
 	try {
 		const id = HEALTH_KEY;
-		// Write to KV
-		const createdAt = new Date(Date.now()).toISOString();
-		const link: LinkKVSchema = { destinationUrl: 'https://example.com', id, createdAt, updatedAt: createdAt };
-		await env.KV.put(id, JSON.stringify(link));
+		await kvCreateLink(env.KV, {
+			id,
+			destinationUrl: 'https://example.com',
+		});
 
-		// Get KV
 		const value = await kvGetLink(env.KV, id);
 
 		if (!value) {
