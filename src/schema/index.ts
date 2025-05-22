@@ -36,12 +36,14 @@ export const CreateLinkRequestSchema = z.object({
 		.regex(linkIdPattern)
 		.min(minimumShortPathLength)
 		.max(maximumShortPathLength)
+		.nullable()
 		.optional()
 		.describe('Custom short path.'),
 	namespace: z
 		.string()
 		.regex(linkIdPattern)
 		.max(maximumNamespaceLength)
+		.nullable()
 		.optional()
 		.describe(`Custom namespace (max ${maximumNamespaceLength} characters).`),
 	length: z
@@ -49,6 +51,7 @@ export const CreateLinkRequestSchema = z.object({
 		.int()
 		.min(minimumShortPathLength)
 		.max(maximumShortPathLength)
+		.nullable()
 		.optional()
 		.default(defaultShortPathLength)
 		.describe('Length of the short path.'),
@@ -56,20 +59,26 @@ export const CreateLinkRequestSchema = z.object({
 		.number()
 		.int()
 		.min(minimumExpirationTtl)
+		.nullable()
 		.optional()
-		.describe(`Expiration time in seconds (min ${minimumExpirationTtl} seconds). Omit for no expiration.`),
+		.describe(
+			`Expiration time in seconds (min ${minimumExpirationTtl} seconds). Omit for no expiration.`
+		),
 });
 
 export type CreateLinkRequestBody = z.infer<typeof CreateLinkRequestSchema>;
 
 export const UpdateLinkRequestSchema = z.object({
-	destinationUrl: z.string().url().describe('URL to be shortened.'),
+	destinationUrl: z.string().url().nullable().optional().describe('URL to be shortened.'),
 	expirationTtl: z
 		.number()
 		.int()
 		.min(minimumExpirationTtl)
+		.nullable()
 		.optional()
-		.describe(`Expiration time in seconds (min ${minimumExpirationTtl} seconds). Omit for no expiration.`),
+		.describe(
+			`Expiration time in seconds (min ${minimumExpirationTtl} seconds). Omit for no expiration.`
+		),
 });
 
 export type UpdateLinkRequestBodySchema = z.infer<typeof UpdateLinkRequestSchema>;
@@ -85,10 +94,16 @@ export const LinkResponseSchema = z.object({
 	id: z.string().describe('Short link ID.'),
 	url: z.string().url().describe('Short link URL.'),
 	qrUrl: z.string().url().describe('QR Code for short link URL.'),
-	namespace: z.string().optional().describe('Short link namespace.'),
-	expirationTtl: z.number().optional().describe('Expiration time in seconds.').openapi({ example: 3600 }),
+	namespace: z.string().nullable().optional().describe('Short link namespace.'),
+	expirationTtl: z
+		.number()
+		.nullable()
+		.optional()
+		.describe('Expiration time in seconds.')
+		.openapi({ example: 3600 }),
 	createdAt: z.string().datetime().describe('Creation timestamp.'),
 	updatedAt: z.string().datetime().describe('Update timestamp.'),
+	expiresAt: z.string().datetime().nullable().optional().describe('Expires at timestamp.'),
 });
 
 export const LinkDeleteResponseSchema = z.object({

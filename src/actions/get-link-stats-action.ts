@@ -3,13 +3,14 @@ import { linkRedirectsAnalytics } from '../analytics/link-redirects-analytics';
 import { Action, LinkAnalyticsGroupByOption } from '../types';
 import { isValidPathPattern } from '../utils/is-valid-path-pattern';
 import { messages, durationInSeconds } from './constants';
+import { kvGetLink } from '../kv';
 
 export const isValidTimeGroup = (groupBy: string) => !!durationInSeconds[groupBy as LinkAnalyticsGroupByOption];
 
 export const getLinkStatsAction: Action = async ({ data, env }) => {
 	const { id, groupBy } = data;
 
-	const value = await env.KV.get(id, { type: 'json' });
+	const value = await kvGetLink(env.KV, id);
 	if (value === null) {
 		throw new StatusError(404, messages.notFound);
 	}

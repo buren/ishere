@@ -7,6 +7,7 @@ import { linkWithUrl, LinkWithUrls } from '../utils/link-with-url';
 import { messages } from './constants';
 import StatusError from '../errors/status-error';
 import { kvCreateLink } from '../kv/kv-create-link';
+import { kvGetLink } from '../kv';
 
 export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = async ({ data, url, env, ctx }) => {
 	const { destinationUrl, shortPath, namespace = null, length, expirationTtl } = data;
@@ -20,10 +21,10 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 		console.log('No shortPath given - generating');
 
 		id = withNamespace(generateShortId(length));
-		let value = await env.KV.get(id, { type: 'json' });
+		let value = await kvGetLink(env.KV, id);
 		while (value !== null || validateIdNotReserved(id || '')) {
 			id = withNamespace(generateShortId(length));
-			value = await env.KV.get(id, { type: 'json' });
+			value = await kvGetLink(env.KV, id);
 		}
 	} else {
 		console.log('shortPath given');
@@ -34,7 +35,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 			throw new StatusError(400, messages.idIsReserved, 'id');
 		}
 
-		const value = await env.KV.get(id, { type: 'json' });
+		const value = await kvGetLink(env.KV, id);
 		if (value !== null) {
 			throw new StatusError(400, messages.idIsInUse, 'id');
 		}

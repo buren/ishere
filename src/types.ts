@@ -12,6 +12,7 @@ export type LinkKVSchema = {
 	namespace?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	expiresAt: string | null;
 	expirationTtl?: number | null;
 };
 

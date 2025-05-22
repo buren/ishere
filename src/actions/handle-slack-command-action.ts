@@ -8,6 +8,7 @@ import { durationInSeconds } from './constants';
 import { createLinkAction } from './create-link-action';
 import { updateLinkAction } from './update-link-action';
 import { defaultShortPathLength } from '../utils/constants';
+import { kvGetLink } from '../kv';
 
 type SlackCommandAction = {
 	text: string;
@@ -26,7 +27,7 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 	if (command === 'help') {
 		return slackRespondWithMarkdown(SLACK_COMMAND_USAGE_MRKDWN);
 	} else if (command === 'stats') {
-		const value = id ? await env.KV.get(id, { type: 'json' }) : null;
+		const value = id ? await kvGetLink(env.KV, id) : null;
 		if (!id || value === null) {
 			return slackRespondWithMessage('No link with that id exists.');
 		}
@@ -91,6 +92,7 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 				},
 				url: requestUrl,
 				env,
+				ctx,
 			});
 
 			waitFor.forEach((promise) => ctx.waitUntil(promise)); // needs to be explicitly iterated over
@@ -113,6 +115,7 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 				},
 				url: requestUrl,
 				env,
+				ctx,
 			});
 
 			return slackRespondWithMarkdown(`:link: Updated, now ${data.url} redirects to ${data.destinationUrl}`);

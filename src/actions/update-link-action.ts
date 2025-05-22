@@ -3,11 +3,13 @@ import { messages } from './constants';
 import { Action, LinkKVSchema } from '../types';
 import { UpdateLinkRequestBodySchema } from '../schema';
 import { linkWithUrl } from '../utils/link-with-url';
+import { kvGetLink } from '../kv';
+import { kvUpdateLink } from '../kv/kv-update-link';
 
 export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string }> = async ({ data, url, env }) => {
 	const { id, destinationUrl, expirationTtl } = data;
 
-	const currentLink = await env.KV.get(id, { type: 'json' });
+	const currentLink = await kvGetLink(env.KV, id);
 	if (!currentLink) {
 		throw new StatusError(404, messages.notFound);
 	}
@@ -16,14 +18,10 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 		throw new StatusError(400, messages.invalidExpirationTtl);
 	}
 
-	// Write to KV
-	const { createdAt, namespace } = currentLink as LinkKVSchema;
-	const updatedAt = new Date(Date.now()).toISOString();
-	const link: LinkKVSchema = { id, destinationUrl, namespace, createdAt, updatedAt };
-	await env.KV.put(id, JSON.stringify(link), { expirationTtl });
+	const updatedLink = await kvUpdateLink(env.KV, currentLink, { destinationUrl, expirationTtl });
 
 	return {
 		status: 202,
-		data: linkWithUrl(url, link),
+		data: linkWithUrl(url, updatedLink),
 	};
 };

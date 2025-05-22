@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS links (
   namespace VARCHAR(100),
 	-- TODO do we need to add explicit time zone information here?
   createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	expiresAt TIMESTAMP
 );

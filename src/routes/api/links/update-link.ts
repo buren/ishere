@@ -12,7 +12,7 @@ const app = new OpenAPIHono<{ Bindings: Env }>();
 
 app.openapi(
 	createRoute({
-		method: 'put',
+		method: 'patch',
 		path: '/:id',
 		tags: ['API'],
 		middleware: apiKeyAuthMiddleware,

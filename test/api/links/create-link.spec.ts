@@ -41,6 +41,7 @@ describe('POST /api/link', () => {
 			expirationTtl: null,
 			createdAt: testDateISO,
 			updatedAt: testDateISO,
+			expiresAt: null,
 			url: 'https://example.com/customPath',
 			qrUrl: 'https://example.com/customPath/qr',
 		});
@@ -145,9 +146,14 @@ describe('POST /api/link', () => {
 			body: JSON.stringify(requestBody),
 			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
 		});
-
 		const data = await response.json() as ResponseBody;
+
+		const expectedExpiresAt = new Date(
+			Date.parse(testDateISO) + expirationTtl * 1000
+		).toISOString();
+
 		expect(data.expirationTtl).toBe(expirationTtl);
+		expect(data.expiresAt).toBe(expectedExpiresAt);
 		expect(response.status).toBe(201);
 	});
 

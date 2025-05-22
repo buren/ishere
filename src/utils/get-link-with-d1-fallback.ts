@@ -1,8 +1,9 @@
 import { dbGetLink } from '../db';
+import { kvGetLink } from '../kv';
 import { LinkKVSchema } from '../types';
 
 export const getLinkWithD1Fallback = async (env: Env, id: string): Promise<LinkKVSchema | null> => {
-	let value = await env.KV.get(id, { type: 'json' });
+	let value = await kvGetLink(env.KV, id);
 
 	// The link might not exist in the KV yet if it was just created
 	// so we check the database as well

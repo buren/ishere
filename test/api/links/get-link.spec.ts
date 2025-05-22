@@ -1,9 +1,7 @@
 import { createExecutionContext, env, SELF, waitOnExecutionContext } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as utils from '../../../src/utils/generate-short-id';
-import { dbCreateLink, dbGetLink } from '../../../src/db';
-import { LinkResponseSchema } from '../../../src/schema';
-import { z } from 'zod';
+import { dbCreateLink } from '../../../src/db';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
 import { kvCreateLink } from '../../../src/kv/kv-create-link';
 
@@ -39,6 +37,7 @@ describe('GET /api/link/:id', () => {
 				expirationTtl: null,
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
+				expiresAt: null,
 			});
 			expect(data).toStrictEqual(expected);
 		});
@@ -51,6 +50,7 @@ describe('GET /api/link/:id', () => {
 				expirationTtl: null,
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
+				expiresAt: null,
 			};
 			await dbCreateLink(env.D1, linkData);
 
@@ -64,6 +64,7 @@ describe('GET /api/link/:id', () => {
 			const expected = linkWithUrl(url, {
 				...linkData,
 				namespace: null,
+				expiresAt: null,
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
 			});
