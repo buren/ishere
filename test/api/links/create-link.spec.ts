@@ -1,7 +1,7 @@
 import { createExecutionContext, env, SELF, waitOnExecutionContext } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as utils from '../../../src/utils/generate-short-id';
-import { reservedPaths } from '../../../src/utils/constants';
+import { apiKeyHeader, reservedPaths } from '../../../src/utils/constants';
 import { messages } from '../../../src/actions';
 import { dbGetLink } from '../../../src/db';
 import { LinkResponseSchema, ValidationErrorSchema } from '../../../src/schema';
@@ -29,7 +29,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -55,7 +55,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -70,7 +70,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		await waitOnExecutionContext(ctx);
@@ -90,7 +90,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -110,7 +110,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -124,7 +124,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		const data = (await response.json()) as ValidationError;
@@ -144,7 +144,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 		const data = await response.json() as ResponseBody;
 		const expectedExpiresAt = new Date(
@@ -163,7 +163,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': 'invalidapikey' },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: 'invalidapikey' },
 		});
 
 		const data = (await response.json()) as ResponseBody;
@@ -172,7 +172,7 @@ describe('POST /api/link', () => {
 				issues: [
 					{
 						code: 'invalid_api_key',
-						message: 'Invalid API key. X-API-KEY: yourapikey',
+						message: `Invalid API key. ${apiKeyHeader}: yourapikey`,
 						path: [],
 						validation: 'authorization',
 					},

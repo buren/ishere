@@ -8,6 +8,7 @@ import redirectRoutes from './redirects';
 import { Context } from 'hono';
 import { notFoundResponseData } from '../openapi';
 import { homePageHtml } from '../html';
+import { apiKeyHeader } from '../utils/constants';
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
 app.use('*', cors());
@@ -88,7 +89,7 @@ app.doc('/openapi.json', {
 \`\`\`bash
 curl https://wshr.io/api/link      \\
   --request POST                   \\
-  --header 'X-API-KEY: yourapikey' \\
+  --header '${apiKeyHeader}: yourapikey' \\
   --json '{ "destinationUrl": "https://example.com" }'
 \`\`\`
 `,

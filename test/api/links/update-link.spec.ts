@@ -4,6 +4,7 @@ import { kvCreateLink } from '../../../src/kv/kv-create-link';
 import { LinkResponseSchema } from '../../../src/schema';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
 import { z } from 'zod';
+import { apiKeyHeader } from '../../../src/utils/constants';
 
 type ResponseBody = z.infer<typeof LinkResponseSchema>;
 
@@ -32,7 +33,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch(url, {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 		const data = (await response.json()) as ResponseBody;
 
@@ -59,7 +60,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch(url, {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 		const data = (await response.json()) as ResponseBody;
 
@@ -78,7 +79,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		expect(response.status).toBe(400);
@@ -104,7 +105,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
 		expect(response.status).toBe(404);
@@ -114,7 +115,7 @@ describe('PATCH /api/link/:id', () => {
 				issues: [
 					{
 						code: 'not_found',
-						message: 'Page not found.',
+						message: 'Page not found',
 					},
 				],
 				name: 'NotFoundError',

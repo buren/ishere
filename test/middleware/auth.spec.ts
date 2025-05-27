@@ -1,6 +1,7 @@
 import { env, SELF } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as utils from '../../src/utils/generate-short-id';
+import { apiKeyHeader } from '../../src/utils/constants';
 
 const API_KEY = 'notsosecret';
 
@@ -22,7 +23,7 @@ describe('API Key Authentication Middleware', () => {
 				issues: [
 					{
 						code: 'invalid_authorization',
-						message: 'Invalid authorization. X-API-KEY: yourapikey',
+						message: `Invalid authorization. ${apiKeyHeader}: yourapikey`,
 						path: [],
 						validation: 'authorization',
 					},
@@ -36,7 +37,7 @@ describe('API Key Authentication Middleware', () => {
 	it('should reject request with invalid API key', async () => {
 		const response = await SELF.fetch('https://example.com/api/link/whatever', {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': 'wrong-key' },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: 'wrong-key' },
 		});
 
 		expect(response.status).toBe(403);
@@ -46,7 +47,7 @@ describe('API Key Authentication Middleware', () => {
 				issues: [
 					{
 						code: 'invalid_api_key',
-						message: 'Invalid API key. X-API-KEY: yourapikey',
+						message: `Invalid API key. ${apiKeyHeader}: yourapikey`,
 						path: [],
 						validation: 'authorization',
 					},
@@ -66,7 +67,7 @@ describe('API Key Authentication Middleware', () => {
 		const response = await SELF.fetch(`https://example.com/api/link/${id}`, {
 			method: 'DELETE',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', 'X-API-KEY': API_KEY },
+			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: API_KEY },
 		});
 
 		expect(response.status).toBe(202);

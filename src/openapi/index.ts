@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ValidationErrorSchema } from '../schema';
+import { apiKeyHeader } from '../utils/constants';
 
 export type ResponseIssueSchema = {
 	code: string;
@@ -32,7 +33,7 @@ export const standardResponsesDoc = (
 				400: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Validation error.' },
 		  }
 		: {}),
-	404: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Not found.' },
+	404: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Not found' },
 	...serverErrorResponseDoc(),
 	...(auth
 		? {
@@ -48,7 +49,15 @@ export const standardResponsesDoc = (
 		: {}),
 });
 
-export const buildRequestDoc = ({ schema, params, auth = true }: { schema: z.ZodType; params?: z.AnyZodObject; auth?: boolean }) => ({
+export const buildRequestDoc = ({
+	schema,
+	params,
+	auth = true,
+}: {
+	schema: z.ZodType;
+	params?: z.AnyZodObject;
+	auth?: boolean;
+}) => ({
 	body: { content: { 'application/json': { schema } } },
 	// TODO this shouldn't really be required, since we define the auth schema
 	// in the Scalar docs, but lets circle back to this later
@@ -56,7 +65,10 @@ export const buildRequestDoc = ({ schema, params, auth = true }: { schema: z.Zod
 	...(auth
 		? {
 				headers: z.object({
-					'X-API-KEY': z.string().describe('`X-API-KEY: yourapikey`.').openapi({ example: 'e78b1a338bc606d74aeab3823e694a40' }),
+					[apiKeyHeader]: z
+						.string()
+						.describe(`\`${apiKeyHeader}: yourapikey\`.`)
+						.openapi({ example: 'e78b1a338bc606d74aeab3823e694a40' }),
 				}),
 		  }
 		: {}),

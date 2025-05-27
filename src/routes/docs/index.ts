@@ -1,5 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
+import { apiKeyHeader } from "../../utils/constants";
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -64,7 +65,7 @@ app.doc('/openapi.json', {
 \`\`\`bash
 curl https://wshr.io/api/link      \\
   --request POST                   \\
-  --header 'X-API-KEY: yourapikey' \\
+  --header '${apiKeyHeader}: yourapikey' \\
   --json '{ "destinationUrl": "https://example.com" }'
 \`\`\`
 `,

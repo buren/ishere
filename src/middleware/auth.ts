@@ -8,7 +8,7 @@ const invalidAuth = {
 			{
 				validation: 'authorization',
 				code: 'invalid_authorization',
-				message: 'Invalid authorization. X-API-KEY: yourapikey',
+				message: `Invalid authorization. ${apiKeyHeader}: yourapikey`,
 				path: [],
 			},
 		],
@@ -23,7 +23,7 @@ const invalidApiKey = {
 			{
 				validation: 'authorization',
 				code: 'invalid_api_key',
-				message: 'Invalid API key. X-API-KEY: yourapikey',
+				message: `Invalid API key. ${apiKeyHeader}: yourapikey`,
 				path: [],
 			},
 		],

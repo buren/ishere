@@ -83,7 +83,7 @@ describe('GET /api/link/:id', () => {
 					issues: [
 						{
 							code: 'not_found',
-							message: 'Page not found.',
+							message: 'Page not found',
 						},
 					],
 					name: 'NotFoundError',
