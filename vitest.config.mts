@@ -8,7 +8,6 @@ export default defineWorkersConfig(async () => {
 
 	return {
 		test: {
-			// TODO figure out why uncommenting this causes mocks to fail
 			setupFiles: ['./test/apply-migrations.ts'],
 			poolOptions: {
 				workers: {

@@ -1,4 +1,5 @@
 import { isValidPathPattern } from '../utils/is-valid-path-pattern';
+import { redirectsTable } from './track-link-redirect';
 
 export type QueryJsonResponse = {
 	meta: {
@@ -20,11 +21,17 @@ export type RedirectStats = {
 	}[];
 };
 
+type RedirectAnalyticsFilters = {
+	id: string;
+	groupBySeconds: number;
+	excludeBotTraffic?: boolean;
+};
+
 export const linkRedirectsAnalytics = async (
 	env: Env,
-	{ id, groupBySeconds }: { id: string; groupBySeconds: number },
+	{ id, groupBySeconds, excludeBotTraffic = false }: RedirectAnalyticsFilters
 ): Promise<RedirectStats> => {
-	const tableName = env.ENVIRONMENT === 'development' ? 'REDIRECTS_DEV' : 'REDIRECTS';
+	const tableName = 'REDIRECTS';
 
 	// Validate id against the strict path pattern to prevent SQL injection
 	if (isValidPathPattern(id) === false) {
@@ -35,13 +42,14 @@ export const linkRedirectsAnalytics = async (
 		throw new Error('Invalid groupBySeconds, must be a positive number');
 	}
 
+	const isBotFilter = excludeBotTraffic ? ` AND ${redirectsTable.isBot} != 'true'` : '';
 	const query = `
 		SELECT
-			toDateTime(intDiv(toUInt32(timestamp), ${groupBySeconds}) * ${groupBySeconds}) AS datetime,
-			blob1 as id,
+			toDateTime(intDiv(toUInt32(${redirectsTable.timestamp}), ${groupBySeconds}) * ${groupBySeconds}) AS datetime,
+			${redirectsTable.id} as id,
 			COUNT() as totalRedirects
 		FROM ${tableName}
-		WHERE blob1 = '${id}'
+		WHERE index1 = '${id}' ${isBotFilter}
 		GROUP BY datetime, id
 		ORDER BY datetime, id, totalRedirects DESC`;
 

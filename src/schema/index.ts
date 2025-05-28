@@ -189,3 +189,14 @@ export const LinkStatsParamsSchema = z.object({
 		})
 		.describe('Group stats by day or hour.'),
 });
+
+export const LinkStatsQuerySchema = z.object({
+	exclude_bot_traffic: z
+		.enum(['true', 'false'])
+		.optional()
+		.default('false')
+		.openapi({
+			examples: ['true', 'false'],
+		})
+		.describe('Exclude bot traffic from stats.'),
+});

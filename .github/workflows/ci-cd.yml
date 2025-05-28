@@ -17,6 +17,8 @@ jobs:
         node-version: '20'
     - name: Install dependencies
       run: npm install
+    - name: Run TypeScript checks
+      run: npm run generate-types
     - name: Run tests
       run: npx vitest run
 

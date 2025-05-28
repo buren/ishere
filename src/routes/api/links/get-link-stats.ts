@@ -9,7 +9,7 @@ import {
 import { getLinkStatsAction, isValidTimeGroup } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema } from '../../../schema';
+import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema, LinkStatsQuerySchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 
 const SUCCESS_STATUS = 200;
@@ -22,9 +22,19 @@ app.openapi(
 		path: '/:id/stats/:groupBy',
 		tags: ['API'],
 		middleware: apiKeyAuthMiddleware,
-		request: buildRequestDoc({ schema: GetLinkStatsRequestSchema, params: LinkStatsParamsSchema }),
+		request: {
+			...buildRequestDoc({
+				schema: GetLinkStatsRequestSchema,
+				params: LinkStatsParamsSchema,
+			}),
+			query: LinkStatsQuerySchema,
+		},
 		responses: {
-			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link stats retrieved successfully'),
+			...jsonResponseDoc(
+				SUCCESS_STATUS,
+				LinkResponseSchema,
+				'Short link stats retrieved successfully'
+			),
 			...standardResponsesDoc({ validations: false }),
 		},
 		summary: 'Get stats for short link',
@@ -33,6 +43,7 @@ app.openapi(
 	}),
 	async (c) => {
 		const { id, groupBy } = c.req.param();
+		const { exclude_bot_traffic: excludeBotTraffic } = c.req.query();
 
 		// TODO can we use zod for validating the groupBy param to be one of hour/day?
 		if (!isValidTimeGroup(groupBy)) {
@@ -50,7 +61,7 @@ app.openapi(
 		try {
 			const { data } = await getLinkStatsAction({
 				url: c.req.url,
-				data: { id, groupBy },
+				data: { id, groupBy, excludeBotTraffic: excludeBotTraffic === 'true' },
 				env: c.env,
 				ctx: c.executionCtx,
 			});

@@ -6,7 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "ishere-v2",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-03-10",
+	"compatibility_date": "2025-04-08",
 
 	// Logs
 	"observability": {
@@ -16,7 +16,7 @@
 	// Dev configuration
   "vars": {
     "ENVIRONMENT": "development",
-    "ACCOUNT_ID": "TODO"
+    "ACCOUNT_ID": "TODO" // Clouudflare Account ID
   },
 
   // "routes": [
@@ -28,11 +28,16 @@
   ],
 
   "d1_databases": [
-    { "binding": "D1", "database_name": "ishere", "database_id": "TODO" }
+    {
+			"binding": "D1",
+			"database_name": "ishere",
+			"database_id": "TODO",
+			"preview_database_id": "TODO"
+		}
   ],
 
   "analytics_engine_datasets": [
-    { "binding": "REDIRECTS_DEV" }
+    { "binding": "REDIRECTS", "dataset": "ishere-redirects" }
   ],
 
   "triggers": {
@@ -51,16 +56,8 @@
         { "pattern": "wshr.io", "custom_domain": true }
       ],
 
-      "kv_namespaces": [
-        { "binding": "KV", "id": "TODO" }
-      ],
-
-      "d1_databases": [
-        { "binding": "D1", "database_name": "ishere-production", "database_id": "TODO" }
-      ],
-
       "analytics_engine_datasets": [
-        { "binding": "REDIRECTS" }
+        { "binding": "REDIRECTS", "dataset": "ishere-redirects-production" }
       ],
 
       "triggers": {

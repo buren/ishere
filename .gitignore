@@ -173,3 +173,6 @@ dist
 
 # OSX
 .DS_Store
+
+# Cloudflare Workers files
+worker-configuration.d.ts

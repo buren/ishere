@@ -27,7 +27,7 @@ ${SLACK_COMMAND_USAGE_MRKDWN}`,
 		// NOTE: We get the api key from the query string because the slack slash command
 		// request does not include the API key in the header.
 		const { apiKey } = c.req.query();
-		if (apiKey !== c.env.API_TOKEN) {
+		if (apiKey !== c.env.API_KEY) {
 			return c.json(slackRespondWithMessage('Invalid API key. Use query param: apiKey=yourapikey'), SUCCESS_STATUS);
 		}
 

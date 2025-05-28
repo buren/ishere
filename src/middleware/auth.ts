@@ -38,7 +38,7 @@ export default async function apiKeyAuthMiddleware(c: Context<{ Bindings: Env }>
 		return c.json(invalidAuth, 401);
 	}
 
-	if (apiKey !== c.env.API_TOKEN) {
+	if (apiKey !== c.env.API_KEY) {
 		return c.json(invalidApiKey, 403);
 	}
 

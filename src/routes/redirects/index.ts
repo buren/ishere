@@ -90,7 +90,7 @@ app.openapi(
 
 		const { destinationUrl } = value as LinkKVSchema;
 		console.log(`Redirecting /${id} to ${destinationUrl}`);
-		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req as unknown as Request, c.env));
+		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 
 		return c.redirect(destinationUrl, 302);
 	}
@@ -155,7 +155,7 @@ app.openapi(
 
 		const { destinationUrl } = value as LinkKVSchema;
 		console.log(`Redirecting /${id} to ${destinationUrl}`);
-		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req as unknown as Request, c.env));
+		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 
 		return c.redirect(destinationUrl, 302);
 	}
