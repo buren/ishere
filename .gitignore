@@ -180,3 +180,6 @@ worker-configuration.d.ts
 # LLMs
 /.claude/
 
+# Misc
+todo.md
+
