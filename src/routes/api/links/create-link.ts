@@ -52,7 +52,7 @@ _NOTE_: You can use \`/{namespace}-{path}\` just as well as \`/{namespace}/{path
 
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 
 			if (error instanceof StatusError) {
 				const { status, data } = statusErrorToJson(error);

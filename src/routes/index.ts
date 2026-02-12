@@ -1,4 +1,5 @@
 import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';
 import { apiReference } from '@scalar/hono-api-reference';
 import linkRoutes from './api/links';
 import slackRoutes from './api/slack';
@@ -11,6 +12,7 @@ import { apiKeyHeader } from '../utils/constants';
 import { createApp } from './app';
 
 const app = createApp();
+app.use('*', logger());
 app.use('*', cors());
 
 // Root route

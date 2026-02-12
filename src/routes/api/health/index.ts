@@ -38,7 +38,7 @@ app.openapi(
 
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 
 			// NOTE we get a type error if we don't cast to any type here
 			return c.json(serviceUnavailableErrorResponseData(), 503) as any;

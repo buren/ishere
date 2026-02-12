@@ -22,7 +22,7 @@ export const healthCheckAction: Action<{}, LinkWithUrls> = async ({ url, env }) 
 		const kvLink = value as LinkKVSchema;
 		return { data: linkWithUrl(url, kvLink) };
 	} catch (error) {
-		console.log('Health check failed');
+		console.error('Health check failed');
 		throw new StatusError(503, messages.serviceUnavailable);
 	}
 };

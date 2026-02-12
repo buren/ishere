@@ -45,7 +45,7 @@ ${SLACK_COMMAND_USAGE_MRKDWN}`,
 
 			return c.json(data, SUCCESS_STATUS);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			return c.json(slackRespondWithMessage('Sorry, something went wrong.'), 500);
 		}
 	}
