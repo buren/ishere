@@ -11,7 +11,7 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 - **QR codes** — append `/qr` to any short link for SVG, PNG, or HTML output
 - **Analytics** — per-link redirect stats with bot detection, grouped by hour or day
 - **Link expiration** — optional TTL-based expiry with automatic cleanup
-- **Slack integration** — create short links via slash commands
+- **Slack integration** — slash commands, bot notifications on link create/update, interactive buttons for stats and details
 - **OpenAPI docs** — interactive API reference at `/docs`
 - **No propagation delay** — links work immediately after creation, even across regions (see [Architecture](#architecture))
 
@@ -63,6 +63,7 @@ npm run dev
 | ------ | --------------------- | ---- | ------------------------ |
 | `GET`  | `/api/health`         | No   | Health check             |
 | `POST` | `/api/slack/command`   | No   | Slack slash command       |
+| `POST` | `/api/slack/interact`  | No   | Slack interactive messages |
 | `GET`  | `/docs`               | No   | Interactive API reference |
 | `GET`  | `/openapi.json`       | No   | OpenAPI spec              |
 
@@ -121,6 +122,9 @@ curl https://your-domain/api/link/abc12/stats/day \
 | `ACCOUNT_ID`               | Yes      | Your Cloudflare Account ID                               |
 | `DEFAULT_SHORT_PATH_LENGTH`| No       | Length of auto-generated short paths (default: `5`)      |
 | `MAX_SHORT_ID_RETRIES`     | No       | Max retries on ID collision (default: `5`)               |
+| `SLACK_BOT_TOKEN`          | No       | Slack Bot User OAuth Token (`xoxb-...`) for notifications |
+| `SLACK_CHANNEL_ID`         | No       | Slack channel to post link notifications to               |
+| `SLACK_SIGNING_SECRET`     | No       | Slack signing secret for verifying interactive messages    |
 
 Set secrets locally in `.dev.vars` and via `wrangler secret put` for deployed environments.
 

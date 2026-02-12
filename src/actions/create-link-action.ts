@@ -5,6 +5,7 @@ import { dbCreateLink } from '../db';
 import { generateShortId } from '../utils/generate-short-id';
 import { linkWithUrl, LinkWithUrls } from '../utils/link-with-url';
 import { messages } from './constants';
+import { notifySlackLinkChange } from './notify-slack-action';
 import StatusError from '../errors/status-error';
 
 const isUniqueConstraintError = (error: unknown): boolean =>
@@ -53,7 +54,10 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 			env.KV.put(id, JSON.stringify(link), { expirationTtl: expirationTtl ?? undefined })
 		);
 
-		return { data: linkWithUrl(url, link) };
+		const result = linkWithUrl(url, link);
+		ctx.waitUntil(notifySlackLinkChange({ action: 'created', linkId: link.id, shortUrl: result.url, destinationUrl: link.destinationUrl, env }));
+
+		return { data: result };
 	}
 
 	// Random path — retry on collision
@@ -72,7 +76,10 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 				env.KV.put(id, JSON.stringify(link), { expirationTtl: expirationTtl ?? undefined })
 			);
 
-			return { data: linkWithUrl(url, link) };
+			const result = linkWithUrl(url, link);
+			ctx.waitUntil(notifySlackLinkChange({ action: 'created', linkId: link.id, shortUrl: result.url, destinationUrl: link.destinationUrl, env }));
+
+			return { data: result };
 		} catch (error) {
 			if (isUniqueConstraintError(error)) continue;
 			throw error;

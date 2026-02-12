@@ -4,6 +4,7 @@ import { Action } from '../types';
 import { UpdateLinkRequestBodySchema } from '../schema';
 import { linkWithUrl } from '../utils/link-with-url';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
+import { notifySlackLinkChange } from './notify-slack-action';
 import { dbUpdateLink } from '../db';
 
 export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string }> = async ({ data, url, env, ctx }) => {
@@ -38,8 +39,11 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 		})
 	);
 
+	const result = linkWithUrl(url, updatedLink);
+	ctx.waitUntil(notifySlackLinkChange({ action: 'updated', linkId: updatedLink.id, shortUrl: result.url, destinationUrl: updatedLink.destinationUrl, env }));
+
 	return {
 		status: 202,
-		data: linkWithUrl(url, updatedLink),
+		data: result,
 	};
 };

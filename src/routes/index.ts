@@ -91,7 +91,7 @@ app.doc('/openapi.json', {
 - 🚀 **Blazing Fast**: Redirects at the edge, leverages Cloudflare KV's global network (+330 cities, +125 countries).
 - 🛤️ **Customizable Paths:** Define namespaces and custom paths for short links (e.g., \`/your-brand/ee2A2\`, \`/your-brand/your-campaign-link\`).
 - 📸 **QR Code Generation:** Generate QR codes in SVG, PNG, or HTML formats by appending \`/qr\` to the redirect path.
-- 💬 **Slack Integration:** Create short links directly via Slack commands.
+- 💬 **Slack Integration:** Slash commands, bot notifications on link create/update, and interactive buttons for stats and details.
 - ⏳ **Time-to-Live (TTL):** Set expiration times for short links.
 
 ## Example
