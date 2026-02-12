@@ -4,7 +4,6 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 
 ## Features
 
-- **No propagation delay** — links work immediately after creation, even across regions (see [Architecture](#architecture))
 - **Custom short paths** — define your own paths or let them auto-generate (`/abc12`, `/your-brand/campaign`)
 - **Namespaces** — organize links under a namespace prefix
 - **QR codes** — append `/qr` to any short link for SVG, PNG, or HTML output
@@ -12,6 +11,7 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 - **Link expiration** — optional TTL-based expiry with automatic cleanup
 - **Slack integration** — create short links via slash commands
 - **OpenAPI docs** — interactive API reference at `/docs`
+- **No propagation delay** — links work immediately after creation, even across regions (see [Architecture](#architecture))
 
 ## Quick Start
 
