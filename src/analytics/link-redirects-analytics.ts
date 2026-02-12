@@ -14,10 +14,14 @@ export type QueryJsonResponse = {
 export type RedirectStats = {
 	totalRows: number;
 	totalRedirects: number;
+	botRedirects: number;
+	nonBotRedirects: number;
 	data: {
 		id: string;
 		datetime: string;
 		totalRedirects: number;
+		botRedirects: number;
+		nonBotRedirects: number;
 	}[];
 };
 
@@ -47,7 +51,9 @@ export const linkRedirectsAnalytics = async (
 		SELECT
 			toDateTime(intDiv(toUInt32(${redirectsTable.timestamp}), ${groupBySeconds}) * ${groupBySeconds}) AS datetime,
 			${redirectsTable.id} as id,
-			COUNT() as totalRedirects
+			COUNT() as totalRedirects,
+			SUM(IF(${redirectsTable.isBot} = 'true', 1, 0)) as botRedirects,
+			SUM(IF(${redirectsTable.isBot} != 'true', 1, 0)) as nonBotRedirects
 		FROM ${tableName}
 		WHERE index1 = '${id}' ${isBotFilter}
 		GROUP BY datetime, id
@@ -72,10 +78,14 @@ export const linkRedirectsAnalytics = async (
 	return {
 		totalRows: responseData.rows,
 		totalRedirects: responseData.data.reduce((sum, row) => sum + Number(row.totalRedirects), 0),
+		botRedirects: responseData.data.reduce((sum, row) => sum + Number(row.botRedirects), 0),
+		nonBotRedirects: responseData.data.reduce((sum, row) => sum + Number(row.nonBotRedirects), 0),
 		data: responseData.data.map((row) => ({
 			id: row.id as string,
 			datetime: row.datetime as string,
 			totalRedirects: Number(row.totalRedirects),
+			botRedirects: Number(row.botRedirects),
+			nonBotRedirects: Number(row.nonBotRedirects),
 		})),
 	};
 };
