@@ -1,8 +1,8 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { apiKeyHeader } from "../../utils/constants";
+import { createApp } from "../app";
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 
 // Scalar API docs
 app.get(

@@ -15,7 +15,7 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 	}
 
 	if (expirationTtl && expirationTtl < 60) {
-		throw new StatusError(400, messages.invalidExpirationTtl);
+		throw new StatusError(400, messages.invalidExpirationTtl, 'expirationTtl', 'too_low');
 	}
 
 	const now = Date.now();

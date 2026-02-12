@@ -2,15 +2,16 @@ import { getLinkWithD1Fallback } from '../../utils/get-link-with-d1-fallback';
 import { LinkKVSchema } from '../../types';
 import { LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../schema';
 import { notFoundHtml } from '../../html';
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
+import { createRoute, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { linkWithUrl } from '../../utils/link-with-url';
 import qrResponse from '../../utils/qr-response';
 import { notFoundQrResponse } from '../../utils/not-found-qr-response';
 import trackLinkRedirect from '../../analytics/track-link-redirect';
+import { createApp } from '../app';
 
 // Link shortening routes
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 
 const qrResponseDoc = {
 	200: {

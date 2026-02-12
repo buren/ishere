@@ -9,7 +9,7 @@ export const getLinkStatsAction: Action = async ({ data, env, ctx }) => {
 	const { id, groupBy } = data;
 
 	if (isValidPathPattern(id) === false) {
-		throw new StatusError(400, 'Invalid id');
+		throw new StatusError(400, 'Invalid id', 'id', 'invalid_format');
 	}
 
 	const value = await getLinkWithD1Fallback(env, id, ctx);

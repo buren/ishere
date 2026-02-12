@@ -1,12 +1,11 @@
 import { createExecutionContext, env, SELF, waitOnExecutionContext } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as actions  from '../../../src/actions';
-import { LinkResponseSchema, ValidationErrorSchema } from '../../../src/schema';
+import { LinkResponseSchema } from '../../../src/schema';
 import { z } from 'zod';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
 
 type ResponseBody = z.infer<typeof LinkResponseSchema>;
-type ValidationError = z.infer<typeof ValidationErrorSchema>;
 
 describe('POST /api/health', () => {
 	const testDate = new Date('2024-07-26T10:00:00.000Z');
@@ -55,15 +54,8 @@ describe('POST /api/health', () => {
 		const data = (await response.json());
 
 		expect(data).toStrictEqual({
-			success: false,
 			error: {
-				issues: [
-					{
-						code: 'service_unavailable',
-						message: 'Service Unavailable',
-					},
-				],
-				name: 'ServiceUnavailable',
+				message: 'Service unavailable',
 			},
 		});
 

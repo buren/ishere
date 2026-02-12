@@ -35,7 +35,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 		const id = withNamespace(shortPath);
 
 		if (isReserved(id)) {
-			throw new StatusError(400, messages.idIsReserved, 'id');
+			throw new StatusError(400, messages.idIsReserved, 'id', 'reserved');
 		}
 
 		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null);
@@ -44,7 +44,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 			await dbCreateLink(env.D1, link);
 		} catch (error) {
 			if (isUniqueConstraintError(error)) {
-				throw new StatusError(400, messages.idIsInUse, 'id');
+				throw new StatusError(400, messages.idIsInUse, 'id', 'in_use');
 			}
 			throw error;
 		}

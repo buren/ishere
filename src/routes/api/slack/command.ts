@@ -1,13 +1,14 @@
-import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
+import { createRoute } from '@hono/zod-openapi';
 import { buildSlackRequestDoc, jsonResponseDoc } from '../../../openapi';
 import { handleSlackCommandAction } from '../../../actions';
 import { SlackCommandRequestSchema, SlackCommandResponseSchema } from '../../../schema';
 import { slackRespondWithMessage } from '../../../utils/slack-respond-with';
 import { SLACK_COMMAND_USAGE_MRKDWN } from '../../../utils/parse-slack-command';
+import { createApp } from '../../app';
 
 const SUCCESS_STATUS = 200;
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 
 app.openapi(
 	createRoute({

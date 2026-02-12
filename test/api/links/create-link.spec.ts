@@ -4,11 +4,10 @@ import * as utils from '../../../src/utils/generate-short-id';
 import { apiKeyHeader, reservedPaths } from '../../../src/utils/constants';
 import { messages } from '../../../src/actions';
 import { dbCreateLink, dbGetLink } from '../../../src/db';
-import { LinkResponseSchema, ValidationErrorSchema } from '../../../src/schema';
+import { LinkResponseSchema } from '../../../src/schema';
 import { z } from 'zod';
 
 type ResponseBody = z.infer<typeof LinkResponseSchema>;
-type ValidationError = z.infer<typeof ValidationErrorSchema>;
 
 describe('POST /api/link', () => {
 	const testDate = new Date('2024-07-26T10:00:00.000Z');
@@ -136,12 +135,18 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
 		});
 
-		const data = (await response.json()) as ValidationError;
-		expect(data.error.issues[0]).toStrictEqual({
-			code: '400',
-			message: messages.idIsReserved,
-			path: ['id'],
-			validation: 'validation',
+		const data = (await response.json()) as any;
+		expect(data).toStrictEqual({
+			error: {
+				message: messages.idIsReserved,
+				errors: [
+					{
+						field: 'id',
+						code: 'reserved',
+						message: messages.idIsReserved,
+					},
+				],
+			},
 		});
 		expect(response.status).toBe(400);
 	});
@@ -175,20 +180,11 @@ describe('POST /api/link', () => {
 			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: 'invalidapikey' },
 		});
 
-		const data = (await response.json()) as ResponseBody;
+		const data = (await response.json()) as any;
 		expect(data).toStrictEqual({
 			error: {
-				issues: [
-					{
-						code: 'invalid_api_key',
-						message: `Invalid API key. ${apiKeyHeader}: yourapikey`,
-						path: [],
-						validation: 'authorization',
-					},
-				],
-				name: 'AuthorizationError',
+				message: `Invalid API key. Use ${apiKeyHeader}: yourapikey`,
 			},
-			success: false,
 		});
 		expect(response.status).toBe(403);
 	});

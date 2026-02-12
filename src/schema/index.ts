@@ -9,23 +9,30 @@ import {
 } from '../utils/constants';
 import { messages } from "../actions";
 
-export const ValidationErrorSchema = z.object({
-	success: z.boolean(),
+export const ErrorResponseSchema = z.object({
 	error: z.object({
-		issues: z.array(
+		message: z.string(),
+	}),
+});
+
+export const errorResponseSchemaWithExample = (example: string) =>
+	z.object({
+		error: z.object({
+			message: z.string().openapi({ example }),
+		}),
+	});
+
+export const ValidationErrorResponseSchema = z.object({
+	error: z.object({
+		message: z.string().openapi({ example: 'must be at least 3 characters' }),
+		errors: z.array(
 			z.object({
-				validation: z.string().optional(),
-				maximum: z.number().optional(),
-				minimum: z.number().optional(),
-				type: z.string().optional(),
-				inclusive: z.boolean().optional(),
-				exact: z.boolean().optional(),
-				code: z.string(),
-				message: z.string(),
-				path: z.array(z.union([z.string(), z.number()])),
+				field: z.string().openapi({ example: 'shortPath' }),
+				code: z.string().openapi({ example: 'too_short' }),
+				message: z.string().openapi({ example: 'must be at least 3 characters' }),
+				params: z.record(z.string(), z.unknown()).optional().openapi({ example: { minimum: 3 } }),
 			})
 		),
-		name: z.string(),
 	}),
 });
 

@@ -99,17 +99,16 @@ describe('PATCH /api/link/:id', () => {
 		const data = (await response.json()) as any;
 		expect(data).toStrictEqual({
 			error: {
-				issues: [
+				message: 'Invalid url',
+				errors: [
 					{
-						code: 'invalid_string',
+						field: 'destinationUrl',
+						code: 'invalid_format',
 						message: 'Invalid url',
-						path: ['destinationUrl'],
-						validation: 'url',
+						params: { expected: 'url' },
 					},
 				],
-				name: 'ZodError',
 			},
-			success: false,
 		});
 	});
 
@@ -125,15 +124,8 @@ describe('PATCH /api/link/:id', () => {
 		const data = (await response.json()) as any;
 		expect(data).toStrictEqual({
 			error: {
-				issues: [
-					{
-						code: 'not_found',
-						message: 'Page not found',
-					},
-				],
-				name: 'NotFoundError',
+				message: 'Not found',
 			},
-			success: false,
 		});
 	});
 });

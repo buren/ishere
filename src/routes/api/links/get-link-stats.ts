@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
+import { createRoute } from '@hono/zod-openapi';
 import {
 	buildRequestDoc,
 	internalServerErrorResponseData,
@@ -10,10 +10,11 @@ import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
 import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema, LinkStatsQuerySchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
+import { createApp } from '../../app';
 
 const SUCCESS_STATUS = 200;
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 
 app.openapi(
 	createRoute({

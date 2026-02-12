@@ -1,11 +1,8 @@
 import { z } from 'zod';
-import { ValidationErrorSchema } from '../schema';
+import { errorResponseSchemaWithExample, ValidationErrorResponseSchema } from '../schema';
 import { apiKeyHeader } from '../utils/constants';
+import { errorResponse } from '../utils/error-response';
 
-export type ResponseIssueSchema = {
-	code: string;
-	message: string;
-};
 export const jsonResponseDoc = (status: number, schema: z.ZodType, description: string) => ({
 	[status]: {
 		content: { 'application/json': { schema } },
@@ -16,11 +13,11 @@ export const jsonResponseDoc = (status: number, schema: z.ZodType, description: 
 // Doc helpers
 export const serverErrorResponseDoc = () => ({
 	500: {
-		content: { 'application/json': { schema: ValidationErrorSchema } },
+		content: { 'application/json': { schema: errorResponseSchemaWithExample('Internal server error') } },
 		description: 'Internal server error',
 	},
 	503: {
-		content: { 'application/json': { schema: ValidationErrorSchema } },
+		content: { 'application/json': { schema: errorResponseSchemaWithExample('Service unavailable') } },
 		description: 'Service Unavailable',
 	},
 });
@@ -30,19 +27,19 @@ export const standardResponsesDoc = (
 ) => ({
 	...(validations
 		? {
-				400: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Validation error.' },
+				400: { content: { 'application/json': { schema: ValidationErrorResponseSchema } }, description: 'Validation error.' },
 		  }
 		: {}),
-	404: { content: { 'application/json': { schema: ValidationErrorSchema } }, description: 'Not found' },
+	404: { content: { 'application/json': { schema: errorResponseSchemaWithExample('Not found') } }, description: 'Not found' },
 	...serverErrorResponseDoc(),
 	...(auth
 		? {
 				401: {
-					content: { 'application/json': { schema: ValidationErrorSchema } },
+					content: { 'application/json': { schema: errorResponseSchemaWithExample(`Invalid authorization. Use ${apiKeyHeader}: yourapikey`) } },
 					description: 'Authorization error',
 				},
 				403: {
-					content: { 'application/json': { schema: ValidationErrorSchema } },
+					content: { 'application/json': { schema: errorResponseSchemaWithExample(`Invalid API key. Use ${apiKeyHeader}: yourapikey`) } },
 					description: 'Authentication error',
 				},
 		  }
@@ -83,40 +80,8 @@ export const buildSlackRequestDoc = ({ schema }: { schema: z.ZodType }) => ({
 });
 
 // Response data
-export const internalServerErrorResponseData = () => ({
-	success: false,
-	error: {
-		issues: [{
-			code: 'internal_server_error',
-			message: 'Internal server error',
-		}],
-		name: 'InternalServerError',
-	},
-});
+export const internalServerErrorResponseData = () => errorResponse('Internal server error');
 
-export const serviceUnavailableErrorResponseData = () => ({
-	success: false,
-	error: {
-		issues: [
-			{
-				code: 'service_unavailable',
-				message: 'Service Unavailable',
-			},
-		],
-		name: 'ServiceUnavailable',
-	},
-});
+export const serviceUnavailableErrorResponseData = () => errorResponse('Service unavailable');
 
-export const notFoundResponseData = (issues?: ResponseIssueSchema[]) => ({
-	success: false,
-	error: {
-		issues: [
-			...(issues || []),
-			{
-				code: 'not_found',
-				message: 'Page not found',
-			},
-		],
-		name: 'NotFoundError',
-	},
-});
+export const notFoundResponseData = () => errorResponse('Not found');

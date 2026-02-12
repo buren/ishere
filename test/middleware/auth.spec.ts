@@ -20,17 +20,8 @@ describe('API Key Authentication Middleware', () => {
 		const data = await response.json() as any;
 		expect(data).toStrictEqual({
 			error: {
-				issues: [
-					{
-						code: 'invalid_authorization',
-						message: `Invalid authorization. ${apiKeyHeader}: yourapikey`,
-						path: [],
-						validation: 'authorization',
-					},
-				],
-				name: 'AuthorizationError',
+				message: `Invalid authorization. Use ${apiKeyHeader}: yourapikey`,
 			},
-			success: false,
 		});
 	});
 
@@ -44,17 +35,8 @@ describe('API Key Authentication Middleware', () => {
 		const data = await response.json() as any;
 		expect(data).toStrictEqual({
 			error: {
-				issues: [
-					{
-						code: 'invalid_api_key',
-						message: `Invalid API key. ${apiKeyHeader}: yourapikey`,
-						path: [],
-						validation: 'authorization',
-					},
-				],
-				name: 'AuthorizationError',
+				message: `Invalid API key. Use ${apiKeyHeader}: yourapikey`,
 			},
-			success: false,
 		});
 	});
 

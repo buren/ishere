@@ -1,5 +1,4 @@
 import { cors } from 'hono/cors';
-import { OpenAPIHono } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
 import linkRoutes from './api/links';
 import slackRoutes from './api/slack';
@@ -9,8 +8,9 @@ import { Context } from 'hono';
 import { notFoundResponseData } from '../openapi';
 import { homePageHtml } from '../html';
 import { apiKeyHeader } from '../utils/constants';
+import { createApp } from './app';
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 app.use('*', cors());
 
 // Root route

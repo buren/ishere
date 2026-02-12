@@ -1,25 +1,20 @@
 import StatusError from '../errors/status-error';
-import { notFoundResponseData } from '../openapi';
+import { errorResponse, validationErrorResponse } from './error-response';
 
 const statusErrorToJson = (error: StatusError) => ({
 	status: error.status,
 	data:
 		error.status === 404
-			? notFoundResponseData()
-			: {
-					success: false,
-					error: {
-						issues: [
-							{
-								validation: 'validation',
-								code: `${error.status}`,
-								message: error.message,
-								path: error.path ? [error.path] : [],
-							},
-						],
-						name: 'ValidationError',
-					},
-			  },
+			? errorResponse('Not found')
+			: error.path
+				? validationErrorResponse([
+						{
+							field: error.path,
+							code: error.code ?? 'invalid',
+							message: error.message,
+						},
+				  ])
+				: errorResponse(error.message),
 });
 
 export default statusErrorToJson;

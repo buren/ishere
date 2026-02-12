@@ -1,7 +1,7 @@
-import { OpenAPIHono } from '@hono/zod-openapi';
+import { createApp } from '../../app';
 import commandRoute from './command';
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 
 app.route('/', commandRoute);
 

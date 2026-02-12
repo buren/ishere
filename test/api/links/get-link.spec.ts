@@ -80,15 +80,8 @@ describe('GET /api/link/:id', () => {
 			const data = await response.json() as any;
 			expect(data).toStrictEqual({
 				error: {
-					issues: [
-						{
-							code: 'not_found',
-							message: 'Page not found',
-						},
-					],
-					name: 'NotFoundError',
+					message: 'Not found',
 				},
-				success: false,
 			});
 	});
 });

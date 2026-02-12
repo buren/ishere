@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
+import { createRoute, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { healthCheckAction } from '../../../actions';
 import {
@@ -8,10 +8,11 @@ import {
 	serviceUnavailableErrorResponseData,
 } from '../../../openapi';
 import { LinkResponseSchema } from '../../../schema';
+import { createApp } from '../../app';
 
 const SUCCESS_STATUS = 200;
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+const app = createApp();
 
 app.openapi(
 	createRoute({
