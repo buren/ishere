@@ -88,7 +88,7 @@ export const internalServerErrorResponseData = () => ({
 	error: {
 		issues: [{
 			code: 'internal_server_error',
-			message: 'Internal server error.',
+			message: 'Internal server error',
 		}],
 		name: 'InternalServerError',
 	},
@@ -100,7 +100,7 @@ export const serviceUnavailableErrorResponseData = () => ({
 		issues: [
 			{
 				code: 'service_unavailable',
-				message: 'Service Unavailable.',
+				message: 'Service Unavailable',
 			},
 		],
 		name: 'ServiceUnavailable',
@@ -114,7 +114,7 @@ export const notFoundResponseData = (issues?: ResponseIssueSchema[]) => ({
 			...(issues || []),
 			{
 				code: 'not_found',
-				message: 'Page not found.',
+				message: 'Page not found',
 			},
 		],
 		name: 'NotFoundError',

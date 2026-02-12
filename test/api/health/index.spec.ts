@@ -60,7 +60,7 @@ describe('POST /api/health', () => {
 				issues: [
 					{
 						code: 'service_unavailable',
-						message: 'Service Unavailable.',
+						message: 'Service Unavailable',
 					},
 				],
 				name: 'ServiceUnavailable',
