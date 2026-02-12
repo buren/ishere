@@ -3,6 +3,7 @@ import createLinkRoute from './create-link';
 import deleteLinkRoute from './delete-link';
 import getLinkRoute from './get-link';
 import getLinkStatsRoute from './get-link-stats';
+import listLinksByNamespaceRoute from './list-links-by-namespace';
 import updateLinkRoute from './update-link';
 
 const app = createApp();
@@ -12,6 +13,7 @@ app.route('/', createLinkRoute);
 app.route('/', deleteLinkRoute);
 app.route('/', getLinkRoute);
 app.route('/', getLinkStatsRoute);
+app.route('/', listLinksByNamespaceRoute);
 app.route('/', updateLinkRoute);
 
 export default app;

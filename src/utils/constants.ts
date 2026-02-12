@@ -8,3 +8,5 @@ export const linkIdPattern = /^[a-zA-Z0-9_-]+$/;
 export const HEALTH_KEY = 'health';
 export const reservedPaths = ['api', 'qr', HEALTH_KEY, 'about', 'docs', 'privacy', 'terms', 'tos', 'admin'];
 export const apiKeyHeader = 'X-API-KEY';
+export const defaultListLimit = 50;
+export const maximumListLimit = 100;

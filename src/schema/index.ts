@@ -1,7 +1,9 @@
 import { z } from "zod";
 import {
+	defaultListLimit,
 	defaultShortPathLength,
 	linkIdPattern,
+	maximumListLimit,
 	maximumNamespaceLength,
 	maximumShortPathLength,
 	minimumExpirationTtl,
@@ -96,6 +98,21 @@ export const GetLinkRequestSchema = z.object({});
 
 export const GetLinkStatsRequestSchema = z.object({});
 
+export const ListLinksByNamespaceRequestSchema = z.object({});
+
+export const ListLinksByNamespaceParamsSchema = z.object({
+	namespace: z
+		.string()
+		.openapi({
+			param: {
+				name: 'namespace',
+				in: 'path',
+			},
+			example: 'your-brand',
+		})
+		.describe('Link namespace.'),
+});
+
 export const LinkResponseSchema = z.object({
 	destinationUrl: z.string().url().describe('URL to be shortened.'),
 	id: z.string().describe('Short link ID.'),
@@ -106,6 +123,28 @@ export const LinkResponseSchema = z.object({
 	createdAt: z.string().datetime().describe('Creation timestamp.'),
 	updatedAt: z.string().datetime().describe('Update timestamp.'),
 	expiresAt: z.string().datetime().nullable().optional().describe('Expires at timestamp.'),
+});
+
+export const ListLinksByNamespaceQuerySchema = z.object({
+	limit: z
+		.string()
+		.optional()
+		.default(String(defaultListLimit))
+		.openapi({ example: String(defaultListLimit) })
+		.describe(`Maximum number of links to return (1–${maximumListLimit}).`),
+	offset: z
+		.string()
+		.optional()
+		.default('0')
+		.openapi({ example: '0' })
+		.describe('Number of links to skip.'),
+});
+
+export const ListLinksByNamespaceResponseSchema = z.object({
+	data: z.array(LinkResponseSchema),
+	total: z.number().describe('Total number of links in this namespace.'),
+	limit: z.number().describe('Limit used for this request.'),
+	offset: z.number().describe('Offset used for this request.'),
 });
 
 export const LinkDeleteResponseSchema = z.object({

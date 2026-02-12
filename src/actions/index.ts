@@ -3,6 +3,7 @@ export * from './create-link-action';
 export * from './delete-link-action';
 export * from './get-link-action';
 export * from './get-link-stats-action';
+export * from './list-links-by-namespace-action';
 export * from './handle-slack-command-action';
 export * from './health-check-action';
 export * from './update-link-action';
