@@ -128,6 +128,66 @@ curl https://your-domain/api/link/abc12/stats/day \
 
 Set secrets locally in `.dev.vars` and via `wrangler secret put` for deployed environments.
 
+## Slack App Setup
+
+The Slack integration lets you create, look up, and manage short links via a slash command, with optional bot notifications when links are created or updated.
+
+### 1. Create a Slack App
+
+Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App** > **From scratch**. Name it (e.g. "IsHere") and select your workspace.
+
+### 2. Slash Command
+
+Under **Slash Commands** > **Create New Command**:
+
+- **Command:** `/ishere`
+- **Request URL:** `https://<your-worker>/api/slack/command?apiKey=<your-API_KEY>`
+
+The API key is passed as a query parameter because Slack doesn't send custom auth headers with slash commands.
+
+### 3. Interactivity
+
+Under **Interactivity & Shortcuts**, toggle **Interactivity** on and set the **Request URL** to:
+
+```
+https://<your-worker>/api/slack/interact
+```
+
+This powers the interactive buttons (View Stats, View Details, etc.) that appear in bot notification messages.
+
+### 4. Bot Token Scopes
+
+Under **OAuth & Permissions** > **Bot Token Scopes**, add:
+
+- `chat:write` — for posting link-change notifications to a channel
+
+### 5. Install & Set Secrets
+
+Install the app to your workspace, then set the following secrets (via `wrangler secret put` or `.dev.vars` locally):
+
+| Secret                 | Where to find it                                                       |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `SLACK_SIGNING_SECRET` | **Basic Information** > Signing Secret                                 |
+| `SLACK_BOT_TOKEN`      | **OAuth & Permissions** > Bot User OAuth Token (`xoxb-...`)            |
+| `SLACK_CHANNEL_ID`     | Right-click a channel in Slack > **View channel details** > Channel ID |
+
+`SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID` are optional — if unset, bot notifications are silently skipped. `SLACK_SIGNING_SECRET` is required for the interaction endpoint.
+
+Finally, invite the bot to your notification channel: `/invite @IsHere`
+
+### Slash Command Usage
+
+```
+/ishere help
+/ishere create <url>
+/ishere create <namespace> <url>
+/ishere create <namespace> <shortPath> <url>
+/ishere update <id> <url>
+/ishere get <id>
+/ishere details <id>
+/ishere stats <id>
+```
+
 ## Architecture
 
 ```
