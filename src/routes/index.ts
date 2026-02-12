@@ -16,7 +16,7 @@ app.use('*', cors());
 
 // Root route
 // app.use('/', async (c: Context<{ Bindings: Env }>) => {
-// 	return c.render(homePageHtml());
+// 	return c.render(homePageHtml("/docs"));
 // });
 
 // API routes

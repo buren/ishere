@@ -98,12 +98,12 @@ export const qrCodeHtml = ({ body }: QrCodeHtmlOptions) => `
 </body>
 </html>`;
 
-export const homePageHtml = () =>
+export const homePageHtml = (docsPath: string) =>
 	htmlPage({
 		title: 'IsHere | Short Links',
 		body: bodyContainer(`
 			<h1>IsHere</h1>
 			<p>Simple, blazing fast, yet powerful link shortening service.</p>
-			<p><a href="/docs">API documentation</a></p>
+			<p><a href="${docsPath}">API documentation</a></p>
 		`),
 	});
