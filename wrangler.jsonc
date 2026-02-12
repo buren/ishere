@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "ishere-v2",
+	"name": "ishere",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-04-08",
 
@@ -15,24 +15,18 @@
 
 	// Dev configuration
   "vars": {
-    "ENVIRONMENT": "development",
-    "ACCOUNT_ID": "TODO" // Clouudflare Account ID
+    "ENVIRONMENT": "development"
   },
 
-  // "routes": [
-  //   { "pattern": "dev.wshr.io", "custom_domain": true }
-  // ],
-
   "kv_namespaces": [
-    { "binding": "KV", "id": "TODO", "preview_id": "TODO" }
+    { "binding": "KV", "id": "placeholder" }
   ],
 
   "d1_databases": [
     {
 			"binding": "D1",
 			"database_name": "ishere",
-			"database_id": "TODO",
-			"preview_database_id": "TODO"
+			"database_id": "placeholder"
 		}
   ],
 
@@ -42,27 +36,5 @@
 
   "triggers": {
     "crons": [ "0 * * * *" ]
-  },
-
-  // Production configuration
-  "env": {
-    "production": {
-      "vars": {
-        "ENVIRONMENT": "production",
-        "ACCOUNT_ID": "TODO"
-      },
-
-      "routes": [
-        { "pattern": "wshr.io", "custom_domain": true }
-      ],
-
-      "analytics_engine_datasets": [
-        { "binding": "REDIRECTS", "dataset": "ishere-redirects-production" }
-      ],
-
-      "triggers": {
-        "crons": [ "0 * * * *" ]
-      }
-    }
   }
 }

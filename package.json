@@ -1,15 +1,27 @@
 {
-	"name": "ishere-v2",
+	"name": "ishere",
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy:preview": "wrangler deploy",
-		"deploy:production": "wrangler deploy --env=production",
+		"deploy": "npx wrangler d1 migrations apply D1 --remote && npx wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
 		"generate-types": "wrangler types",
 		"test": "vitest",
 		"cf-typegen": "wrangler types"
+	},
+	"cloudflare": {
+		"bindings": {
+			"API_KEY": {
+				"description": "Secret key for authenticating API requests. Generate any random string."
+			},
+			"ANALYTICS_API_TOKEN": {
+				"description": "Cloudflare API token for querying [Analytics Engine](https://developers.cloudflare.com/analytics/analytics-engine/). Requires `Account Analytics: Read` permission."
+			},
+			"ACCOUNT_ID": {
+				"description": "Your Cloudflare Account ID. Found on the [Workers & Pages overview](https://dash.cloudflare.com/?to=/:account/workers-and-pages)."
+			}
+		}
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.7.5",

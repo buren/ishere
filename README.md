@@ -2,6 +2,8 @@
 
 A fast, edge-deployed link shortening service built with [Hono](https://hono.dev) on [Cloudflare Workers](https://workers.cloudflare.com).
 
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/buren/ishere)
+
 ## Features
 
 - **Custom short paths** — define your own paths or let them auto-generate (`/abc12`, `/your-brand/campaign`)
@@ -15,35 +17,22 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 
 ## Quick Start
 
-### Prerequisites
+### One-Click Deploy
 
-- Node.js
-- A [Cloudflare account](https://dash.cloudflare.com/sign-up) with Workers, KV, D1, and Analytics Engine enabled
+Click the button above to deploy to Cloudflare. The deploy flow will automatically create KV, D1, and Analytics Engine resources and prompt you for secrets.
 
-### Setup
+### Local Development
 
 ```bash
 npm install
 npm run generate-types
-cp .dev.vars.template .dev.vars   # add your API_KEY
+cp .dev.vars.example .dev.vars   # fill in your values
 ```
 
-Create KV and D1 resources:
-
-```bash
-npx wrangler kv namespace create ishere
-npx wrangler d1 create ishere
-```
-
-Update `wrangler.jsonc` with the IDs from the commands above, then run migrations:
+Apply D1 migrations locally and start the dev server:
 
 ```bash
 npx wrangler d1 migrations apply ishere --local
-```
-
-Start the dev server:
-
-```bash
 npm run dev
 ```
 
@@ -129,6 +118,7 @@ curl https://your-domain/api/link/abc12/stats/day \
 | -------------------------- | -------- | -------------------------------------------------------- |
 | `API_KEY`                  | Yes      | Secret key for authenticating API requests               |
 | `ANALYTICS_API_TOKEN`      | Yes      | Cloudflare API token for querying Analytics Engine        |
+| `ACCOUNT_ID`               | Yes      | Your Cloudflare Account ID                               |
 | `DEFAULT_SHORT_PATH_LENGTH`| No       | Length of auto-generated short paths (default: `5`)      |
 | `MAX_SHORT_ID_RETRIES`     | No       | Max retries on ID collision (default: `5`)               |
 
@@ -159,7 +149,10 @@ Tests use `@cloudflare/vitest-pool-workers` with local KV and D1 bindings.
 
 ## Deployment
 
+Deploy via the [Cloudflare Deploy Button](#quick-start) or manually:
+
 ```bash
-npm run deploy:preview      # deploy to preview environment
-npm run deploy:production   # deploy to production
+npm run deploy
 ```
+
+This runs D1 migrations and deploys the worker. Set your custom domain in the Cloudflare dashboard after deploying.
