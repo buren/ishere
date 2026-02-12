@@ -1,4 +1,4 @@
-import { createRoute, z } from '@hono/zod-openapi';
+import { createRoute } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { healthCheckAction } from '../../../actions';
 import {
@@ -19,7 +19,7 @@ app.openapi(
 		method: 'get',
 		path: '/',
 		tags: ['API'],
-		request: buildRequestDoc({ schema: z.object({}), auth: false }),
+		request: buildRequestDoc({ auth: false }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link returned if API is up and working.'),
 			...serverErrorResponseDoc(),

@@ -8,7 +8,7 @@ import {
 import { getLinkStatsAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema, LinkStatsQuerySchema } from '../../../schema';
+import { LinkResponseSchema, LinkStatsParamsSchema, LinkStatsQuerySchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 import { createApp } from '../../app';
 
@@ -24,7 +24,6 @@ app.openapi(
 		middleware: apiKeyAuthMiddleware,
 		request: {
 			...buildRequestDoc({
-				schema: GetLinkStatsRequestSchema,
 				params: LinkStatsParamsSchema,
 			}),
 			query: LinkStatsQuerySchema,

@@ -8,7 +8,7 @@ import {
 import { getLinkAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { GetLinkRequestSchema, LinkParamsSchema, LinkResponseSchema } from '../../../schema';
+import { LinkParamsSchema, LinkResponseSchema } from '../../../schema';
 import { createApp } from '../../app';
 
 const SUCCESS_STATUS = 202;
@@ -20,7 +20,7 @@ app.openapi(
 		method: 'get',
 		path: '/:id',
 		tags: ['API'],
-		request: buildRequestDoc({ schema: GetLinkRequestSchema, params: LinkParamsSchema, auth: false }),
+		request: buildRequestDoc({ params: LinkParamsSchema, auth: false }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link retrieved successfully'),
 			...standardResponsesDoc({ auth: false, validations: false }),

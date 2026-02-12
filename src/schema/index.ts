@@ -92,14 +92,6 @@ export const UpdateLinkRequestSchema = z.object({
 
 export type UpdateLinkRequestBodySchema = z.infer<typeof UpdateLinkRequestSchema>;
 
-export const DeleteLinkRequestSchema = z.object({});
-
-export const GetLinkRequestSchema = z.object({});
-
-export const GetLinkStatsRequestSchema = z.object({});
-
-export const ListLinksByNamespaceRequestSchema = z.object({});
-
 export const ListLinksByNamespaceParamsSchema = z.object({
 	namespace: z
 		.string()

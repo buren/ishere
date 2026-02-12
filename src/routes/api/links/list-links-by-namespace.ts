@@ -9,7 +9,6 @@ import { listLinksByNamespaceAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
 import {
-	ListLinksByNamespaceRequestSchema,
 	ListLinksByNamespaceParamsSchema,
 	ListLinksByNamespaceQuerySchema,
 	ListLinksByNamespaceResponseSchema,
@@ -27,7 +26,7 @@ app.openapi(
 		path: '/namespace/:namespace',
 		tags: ['API'],
 		request: {
-			...buildRequestDoc({ schema: ListLinksByNamespaceRequestSchema, params: ListLinksByNamespaceParamsSchema, auth: false }),
+			...buildRequestDoc({ params: ListLinksByNamespaceParamsSchema, auth: false }),
 			query: ListLinksByNamespaceQuerySchema,
 		},
 		responses: {

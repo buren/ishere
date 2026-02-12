@@ -51,11 +51,11 @@ export const buildRequestDoc = ({
 	params,
 	auth = true,
 }: {
-	schema: z.ZodType;
+	schema?: z.ZodType;
 	params?: z.AnyZodObject;
 	auth?: boolean;
 }) => ({
-	body: { content: { 'application/json': { schema } } },
+	...(schema ? { body: { content: { 'application/json': { schema } } } } : {}),
 	// TODO this shouldn't really be required, since we define the auth schema
 	// in the Scalar docs, but lets circle back to this later
 	...(params ? { params } : {}),

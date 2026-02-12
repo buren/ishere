@@ -8,7 +8,7 @@ import {
 import { deleteLinkAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
-import { DeleteLinkRequestSchema, LinkDeleteResponseSchema, LinkParamsSchema } from '../../../schema';
+import { LinkDeleteResponseSchema, LinkParamsSchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 import { createApp } from '../../app';
 
@@ -22,7 +22,7 @@ app.openapi(
 		path: '/:id',
 		tags: ['API'],
 		middleware: apiKeyAuthMiddleware,
-		request: buildRequestDoc({ schema: DeleteLinkRequestSchema, params: LinkParamsSchema }),
+		request: buildRequestDoc({ params: LinkParamsSchema }),
 		responses: {
 			...jsonResponseDoc(
 				SUCCESS_STATUS,
