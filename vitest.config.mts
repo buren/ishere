@@ -18,7 +18,12 @@ export default defineWorkersConfig(async () => {
 						d1Databases: ['D1'],
 						// Add a test-only binding for migrations, so we can apply them in a
 						// setup file
-						bindings: { TEST_MIGRATIONS: migrations },
+						bindings: {
+							TEST_MIGRATIONS: migrations,
+							API_KEY: 'notsosecret',
+							ANALYTICS_API_TOKEN: 'notsosecret',
+							SLACK_SIGNING_SECRET: 'test-signing-secret',
+						},
 					},
 				},
 			},
