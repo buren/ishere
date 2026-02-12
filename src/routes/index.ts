@@ -15,9 +15,9 @@ app.use('*', logger());
 app.use('*', cors());
 
 // Root route
-app.use('/', async (c: Context<{ Bindings: Env }>) => {
-	return c.render(homePageHtml());
-});
+// app.use('/', async (c: Context<{ Bindings: Env }>) => {
+// 	return c.render(homePageHtml());
+// });
 
 // API routes
 app.route('/api/link', linkRoutes);
@@ -31,7 +31,7 @@ app.use('/api/*', async (c: Context<{ Bindings: Env }>) => {
 
 // Scalar API docs
 app.get(
-	'/docs',
+	'/',
 	apiReference({
 		url: '/openapi.json',
 		title: 'IsHere API',
