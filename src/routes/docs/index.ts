@@ -5,7 +5,7 @@ const app = createApp();
 
 // Scalar API docs
 app.get(
-	'/docs',
+	'/',
 	apiReference({
 		url: '/openapi.json',
 		title: 'IsHere API',

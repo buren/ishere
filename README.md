@@ -12,7 +12,7 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 - **Analytics** — per-link redirect stats with bot detection, grouped by hour or day
 - **Link expiration** — optional TTL-based expiry with automatic cleanup
 - **Slack integration** — slash commands, bot notifications on link create/update, interactive buttons for stats and details
-- **OpenAPI docs** — interactive API reference at `/docs`
+- **OpenAPI docs** — interactive API reference at `/`
 - **No propagation delay** — links work immediately after creation, even across regions (see [Architecture](#architecture))
 
 ## Quick Start
@@ -64,7 +64,7 @@ npm run dev
 | `GET`  | `/api/health`         | No   | Health check             |
 | `POST` | `/api/slack/command`   | No   | Slack slash command       |
 | `POST` | `/api/slack/interact`  | No   | Slack interactive messages |
-| `GET`  | `/docs`               | No   | Interactive API reference |
+| `GET`  | `/`                   | No   | Interactive API reference |
 | `GET`  | `/openapi.json`       | No   | OpenAPI spec              |
 
 Auth is via the `Authorization: Bearer <token>` header.

@@ -34,7 +34,7 @@ src/index.ts (Worker entry) → src/routes/ (Hono OpenAPI routes) → src/action
 - `/api/health` — Health check
 - `/:id` and `/:namespace/:shortPath` — Redirect resolution (no auth)
 - Append `/qr` to any redirect path for QR code generation
-- `/docs` — Scalar API reference UI, `/openapi.json` — OpenAPI spec
+- `/` — Scalar API reference UI, `/openapi.json` — OpenAPI spec
 
 ### Link ID Resolution
 
