@@ -5,17 +5,11 @@ import { isValidPathPattern } from '../utils/is-valid-path-pattern';
 import { messages, durationInSeconds } from './constants';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
 
-export const isValidTimeGroup = (groupBy: string) => !!durationInSeconds[groupBy as LinkAnalyticsGroupByOption];
-
 export const getLinkStatsAction: Action = async ({ data, env, ctx }) => {
 	const { id, groupBy } = data;
 
 	if (isValidPathPattern(id) === false) {
 		throw new StatusError(400, 'Invalid id');
-	}
-
-	if (!isValidTimeGroup(groupBy)) {
-		throw new StatusError(400, 'Invalid groupBy, must be one of: day, hour');
 	}
 
 	const value = await getLinkWithD1Fallback(env, id, ctx);

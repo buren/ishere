@@ -3,10 +3,9 @@ import {
 	buildRequestDoc,
 	internalServerErrorResponseData,
 	jsonResponseDoc,
-	notFoundResponseData,
 	standardResponsesDoc,
 } from '../../../openapi';
-import { getLinkStatsAction, isValidTimeGroup } from '../../../actions';
+import { getLinkStatsAction } from '../../../actions';
 import StatusError from '../../../errors/status-error';
 import statusErrorToJson from '../../../utils/status-error-to-json';
 import { GetLinkStatsRequestSchema, LinkResponseSchema, LinkStatsParamsSchema, LinkStatsQuerySchema } from '../../../schema';
@@ -44,19 +43,6 @@ app.openapi(
 	async (c) => {
 		const { id, groupBy } = c.req.param();
 		const { exclude_bot_traffic: excludeBotTraffic } = c.req.query();
-
-		// TODO can we use zod for validating the groupBy param to be one of hour/day?
-		if (!isValidTimeGroup(groupBy)) {
-			return c.json(
-				notFoundResponseData([
-					{
-						code: 'invalid_time_group',
-						message: 'Invalid groupBy, must be one of: day, hour',
-					},
-				]),
-				404
-			);
-		}
 
 		try {
 			const { data } = await getLinkStatsAction({
