@@ -3,17 +3,12 @@ import { linkRedirectsAnalytics } from '../analytics/link-redirects-analytics';
 import { Action, LinkAnalyticsGroupByOption } from '../types';
 import { isValidPathPattern } from '../utils/is-valid-path-pattern';
 import { messages, durationInSeconds } from './constants';
-import { kvGetLink } from '../kv';
+import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
 
 export const isValidTimeGroup = (groupBy: string) => !!durationInSeconds[groupBy as LinkAnalyticsGroupByOption];
 
-export const getLinkStatsAction: Action = async ({ data, env }) => {
+export const getLinkStatsAction: Action = async ({ data, env, ctx }) => {
 	const { id, groupBy } = data;
-
-	const value = await kvGetLink(env.KV, id);
-	if (value === null) {
-		throw new StatusError(404, messages.notFound);
-	}
 
 	if (isValidPathPattern(id) === false) {
 		throw new StatusError(400, 'Invalid id');
@@ -21,6 +16,11 @@ export const getLinkStatsAction: Action = async ({ data, env }) => {
 
 	if (!isValidTimeGroup(groupBy)) {
 		throw new StatusError(400, 'Invalid groupBy, must be one of: day, hour');
+	}
+
+	const value = await getLinkWithD1Fallback(env, id, ctx);
+	if (value === null) {
+		throw new StatusError(404, messages.notFound);
 	}
 
 	try {

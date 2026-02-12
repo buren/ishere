@@ -1,18 +1,20 @@
 import StatusError from '../errors/status-error';
 import { messages } from './constants';
 import { Action } from '../types';
-import { kvGetLink } from '../kv';
+import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
+import { dbDeleteLink } from '../db';
 
-export const deleteLinkAction: Action = async ({ data, env }) => {
+export const deleteLinkAction: Action = async ({ data, env, ctx }) => {
 	const { id } = data;
 
-	const currentLink = await kvGetLink(env.KV, id);
+	const currentLink = await getLinkWithD1Fallback(env, id, ctx);
 	if (!currentLink) {
 		throw new StatusError(404, messages.notFound);
 	}
 
-	// Delete from KV
-	await env.KV.delete(id);
+	await dbDeleteLink(env.D1, id);
 
-	return { data: { message: messages.deleteRequestReceived, } };
+	ctx.waitUntil(env.KV.delete(id));
+
+	return { data: { message: messages.deleted } };
 };

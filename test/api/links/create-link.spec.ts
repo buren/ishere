@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as utils from '../../../src/utils/generate-short-id';
 import { apiKeyHeader, reservedPaths } from '../../../src/utils/constants';
 import { messages } from '../../../src/actions';
-import { dbGetLink } from '../../../src/db';
+import { dbCreateLink, dbGetLink } from '../../../src/db';
 import { LinkResponseSchema, ValidationErrorSchema } from '../../../src/schema';
 import { z } from 'zod';
 
@@ -99,7 +99,16 @@ describe('POST /api/link', () => {
 	});
 
 	it('should retry if generated shortPath collides', async () => {
-		await env.KV.put('collision', JSON.stringify({ id: 'collision' }));
+		// Pre-populate D1 with a collision entry
+		await dbCreateLink(env.D1, {
+			id: 'collision',
+			destinationUrl: 'https://existing.com',
+			namespace: null,
+			expirationTtl: null,
+			createdAt: testDateISO,
+			updatedAt: testDateISO,
+			expiresAt: null,
+		});
 
 		vi.spyOn(utils, 'generateShortId')
 			.mockReturnValueOnce('collision')

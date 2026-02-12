@@ -1,9 +1,8 @@
-export const dbDeleteOldLinks = async (db: D1Database, { seconds }: { seconds: number }): Promise<number> => {
-	const cutoffTime = Date.now() - seconds * 1000;
-	const isoCutoffTime = new Date(cutoffTime).toISOString().slice(0, 19).replace('T', ' ');
+export const dbDeleteOldLinks = async (db: D1Database): Promise<number> => {
+	const now = new Date().toISOString();
 
-	const statement = db.prepare('DELETE FROM links WHERE createdAt <= ?');
-	const result = await statement.bind(isoCutoffTime).run();
+	const statement = db.prepare('DELETE FROM links WHERE expiresAt IS NOT NULL AND expiresAt <= ?');
+	const result = await statement.bind(now).run();
 
 	return result.meta.changes;
 };

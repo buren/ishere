@@ -5,11 +5,13 @@ import { LinkResponseSchema } from '../../../src/schema';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
 import { z } from 'zod';
 import { apiKeyHeader } from '../../../src/utils/constants';
+import { dbCreateLink, dbGetLink } from '../../../src/db';
 
 type ResponseBody = z.infer<typeof LinkResponseSchema>;
 
 describe('PATCH /api/link/:id', () => {
 	const testDate = new Date('2024-07-26T10:00:00.000Z');
+	const testDateISO = testDate.toISOString();
 	const apiKey = 'notsosecret';
 	let ctx: ExecutionContext;
 
@@ -23,6 +25,7 @@ describe('PATCH /api/link/:id', () => {
 	it('should update a link with new destinationUrl', async () => {
 		const linkId = 'my-id';
 		const link = await kvCreateLink(env.KV, { id: linkId, destinationUrl: 'https://example.com' });
+		await dbCreateLink(env.D1, link);
 
 		// Set new system time so that updatedAt get another value than createdAt
 		const updatedAt = new Date('2025-05-04T23:00:00.000Z');
@@ -44,11 +47,17 @@ describe('PATCH /api/link/:id', () => {
 		});
 		expect(response.status).toBe(202);
 		expect(data).toStrictEqual(expected);
+
+		// Verify D1 is updated
+		const dbLink = await dbGetLink(env.D1, { id: linkId });
+		expect(dbLink?.destinationUrl).toBe('https://example.com/new-path');
+		expect(dbLink?.updatedAt).toBe(updatedAt.toISOString());
 	});
 
 	it('should update a link with new expirationTtl', async () => {
 		const linkId = 'my-id';
 		const link = await kvCreateLink(env.KV, { id: linkId, destinationUrl: 'https://example.com' });
+		await dbCreateLink(env.D1, link);
 
 		// Set new system time so that updatedAt get another value than createdAt
 		const updatedAt = new Date('2025-05-04T23:00:00.000Z');
@@ -72,6 +81,10 @@ describe('PATCH /api/link/:id', () => {
 		});
 		expect(response.status).toBe(202);
 		expect(data).toStrictEqual(expected);
+
+		// Verify D1 is updated
+		const dbLink = await dbGetLink(env.D1, { id: linkId });
+		expect(dbLink?.expirationTtl).toBe(expirationTtl);
 	});
 
 	it('should should return 400 on invalid request body', async () => {
