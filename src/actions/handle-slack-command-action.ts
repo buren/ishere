@@ -78,6 +78,35 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 
 		const { url, destinationUrl } = linkWithUrl(requestUrl, link);
 		return slackRespondWithMarkdown(`:link: ${url} redirects to ${destinationUrl}`);
+	} else if (command === 'details') {
+		if (!id) {
+			return slackRespondWithMessage('No id provided.');
+		}
+
+		const link = await getLinkWithD1Fallback(env, id);
+		if (!link) {
+			return slackRespondWithMessage('No link with that id exists.');
+		}
+
+		const { url, qrUrl, destinationUrl } = linkWithUrl(requestUrl, link);
+		const namespace = link.namespace ?? 'none';
+		const ttl = link.expirationTtl ? `${link.expirationTtl}s` : 'none';
+		const expiresAt = link.expiresAt ?? 'none';
+
+		const markdown = [
+			`*:mag: Link details*`,
+			`*ID:* ${link.id}`,
+			`*Destination:* ${destinationUrl}`,
+			`*Short URL:* ${url}`,
+			`*QR URL:* ${qrUrl}`,
+			`*Namespace:* ${namespace}`,
+			`*TTL:* ${ttl}`,
+			`*Expires at:* ${expiresAt}`,
+			`*Created at:* ${link.createdAt}`,
+			`*Updated at:* ${link.updatedAt}`,
+		].join('\n');
+
+		return slackRespondWithMarkdown(markdown);
 	} else if (command === 'create') {
 		try {
 			const {

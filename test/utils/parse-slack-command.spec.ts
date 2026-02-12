@@ -45,6 +45,21 @@ describe('parseSlackCommand', () => {
 		});
 	});
 
+	it('should parse details command correctly', () => {
+		expect(parseSlackCommand('details abc')).toEqual({
+			command: 'details',
+			id: 'abc',
+		});
+		expect(parseSlackCommand('  details  xyz  ')).toEqual({
+			command: 'details',
+			id: 'xyz',
+		});
+		expect(parseSlackCommand('  details  https://example.com/name/xyz  ')).toEqual({
+			command: 'details',
+			id: 'name-xyz',
+		});
+	});
+
 	it('should parse create command correctly', () => {
 		expect(parseSlackCommand('create http://example.com')).toEqual({
 			command: 'create',
@@ -85,6 +100,7 @@ describe('parseSlackCommand', () => {
 		expect(parseSlackCommand('invalid')).toEqual({ command: 'invalid' });
 		expect(parseSlackCommand('stats')).toEqual({ command: 'invalid' });
 		expect(parseSlackCommand('get')).toEqual({ command: 'invalid' });
+		expect(parseSlackCommand('details')).toEqual({ command: 'invalid' });
 		expect(parseSlackCommand('create')).toEqual({ command: 'invalid' });
 		expect(parseSlackCommand('update')).toEqual({ command: 'invalid' });
 		expect(parseSlackCommand('put abc')).toEqual({ command: 'invalid' });

@@ -1,7 +1,7 @@
 import { extractShortPath } from './extract-short-path';
 
 export type SlackCommand = {
-	command: 'help' | 'stats' | 'get' | 'create' | 'update' | 'invalid';
+	command: 'help' | 'stats' | 'get' | 'details' | 'create' | 'update' | 'invalid';
 	id?: string;
 	destinationUrl?: string;
 	namespace?: string;
@@ -9,7 +9,7 @@ export type SlackCommand = {
 };
 
 export const SLACK_COMMAND_USAGE_MRKDWN =
-	'*Usage instructions*\n- `/ishere stats {id}`\n- `/ishere get {id}`\n- `/ishere create {url}`\n- `/ishere create {namespace} {url}`\n- `/ishere create {namespace} {shortPath} {url}`\n- `/ishere update {id} {url}`';
+	'*Usage instructions*\n- `/ishere stats {id}`\n- `/ishere get {id}`\n- `/ishere details {id}`\n- `/ishere create {url}`\n- `/ishere create {namespace} {url}`\n- `/ishere create {namespace} {shortPath} {url}`\n- `/ishere update {id} {url}`';
 
 /**
  * Parses a Slack command string and returns a structured object representing the command.
@@ -25,6 +25,9 @@ export const SLACK_COMMAND_USAGE_MRKDWN =
  *
  * **Get**
  *  - `/ishere get {id}`
+ *
+ * **Details**
+ *  - `/ishere details {id}`
  *
  * **Create**
  *  - `/ishere create {url}`
@@ -54,6 +57,13 @@ export const parseSlackCommand = (text: string): SlackCommand => {
 	if (parts[0] === 'get' && parts.length >= 2) {
 		return {
 			command: 'get',
+			id: extractShortPath(parts[1]),
+		};
+	}
+
+	if (parts[0] === 'details' && parts.length >= 2) {
+		return {
+			command: 'details',
 			id: extractShortPath(parts[1]),
 		};
 	}
