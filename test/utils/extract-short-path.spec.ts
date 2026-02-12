@@ -4,19 +4,19 @@ import { extractShortPath } from '../../src/utils/extract-short-path';
 describe('extractShortPath', () => {
 	it('should extract short path from URLs', () => {
 		// With protocol
-		expect(extractShortPath('https://dev.wshr.io/xyz')).toBe('xyz');
-		expect(extractShortPath('https://dev.wshr.io/name-xyz')).toBe('name-xyz');
-		expect(extractShortPath('https://dev.wshr.io/name/xyz')).toBe('name-xyz');
+		expect(extractShortPath('https://dev.example.com/xyz')).toBe('xyz');
+		expect(extractShortPath('https://dev.example.com/name-xyz')).toBe('name-xyz');
+		expect(extractShortPath('https://dev.example.com/name/xyz')).toBe('name-xyz');
 		expect(extractShortPath('http://localhost:8776/xyz')).toBe('xyz');
-		expect(extractShortPath('https://dev.wshr.io/name-xyz')).toBe('name-xyz');
+		expect(extractShortPath('https://dev.example.com/name-xyz')).toBe('name-xyz');
 		expect(extractShortPath('http://localhost:8776/name/xyz')).toBe('name-xyz');
 		expect(extractShortPath('     http://localhost:8776/name/xyz     ')).toBe('name-xyz');
 		// No protocol
-		expect(extractShortPath('dev.wshr.io/xyz')).toBe('xyz');
-		expect(extractShortPath('dev.wshr.io/name-xyz')).toBe('name-xyz');
-		expect(extractShortPath('dev.wshr.io/name/xyz')).toBe('name-xyz');
-		expect(extractShortPath('dev.wshr.io/name-xyz')).toBe('name-xyz');
-		expect(extractShortPath('     dev.wshr.io/name/xyz     ')).toBe('name-xyz');
+		expect(extractShortPath('dev.example.com/xyz')).toBe('xyz');
+		expect(extractShortPath('dev.example.com/name-xyz')).toBe('name-xyz');
+		expect(extractShortPath('dev.example.com/name/xyz')).toBe('name-xyz');
+		expect(extractShortPath('dev.example.com/name-xyz')).toBe('name-xyz');
+		expect(extractShortPath('     dev.example.com/name/xyz     ')).toBe('name-xyz');
 	});
 
 	it('should handle inputs that are already short paths', () => {

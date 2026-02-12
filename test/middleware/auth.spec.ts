@@ -1,7 +1,6 @@
 import { env, SELF } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as utils from '../../src/utils/generate-short-id';
-import { apiKeyHeader } from '../../src/utils/constants';
 
 const API_KEY = 'notsosecret';
 
@@ -20,7 +19,7 @@ describe('API Key Authentication Middleware', () => {
 		const data = await response.json() as any;
 		expect(data).toStrictEqual({
 			error: {
-				message: `Invalid authorization. Use ${apiKeyHeader}: yourapikey`,
+				message: 'Invalid authorization. Use Authorization: Bearer <token>',
 			},
 		});
 	});
@@ -28,14 +27,14 @@ describe('API Key Authentication Middleware', () => {
 	it('should reject request with invalid API key', async () => {
 		const response = await SELF.fetch('https://example.com/api/link/whatever', {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: 'wrong-key' },
+			headers: { 'Content-Type': 'application/json', Authorization: 'Bearer wrong-key' },
 		});
 
 		expect(response.status).toBe(403);
 		const data = await response.json() as any;
 		expect(data).toStrictEqual({
 			error: {
-				message: `Invalid API key. Use ${apiKeyHeader}: yourapikey`,
+				message: 'Invalid API key. Use Authorization: Bearer <token>',
 			},
 		});
 	});
@@ -49,7 +48,7 @@ describe('API Key Authentication Middleware', () => {
 		const response = await SELF.fetch(`https://example.com/api/link/${id}`, {
 			method: 'DELETE',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: API_KEY },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${API_KEY}` },
 		});
 
 		expect(response.status).toBe(202);

@@ -66,7 +66,7 @@ npm run dev
 | `GET`  | `/docs`               | No   | Interactive API reference |
 | `GET`  | `/openapi.json`       | No   | OpenAPI spec              |
 
-Auth is via the `X-API-KEY` header.
+Auth is via the `Authorization: Bearer <token>` header.
 
 ## Usage Examples
 
@@ -75,7 +75,7 @@ Auth is via the `X-API-KEY` header.
 ```bash
 curl https://your-domain/api/link \
   --request POST \
-  --header 'X-API-KEY: yourapikey' \
+  --header 'Authorization: Bearer yourapikey' \
   --json '{ "destinationUrl": "https://example.com" }'
 ```
 
@@ -84,7 +84,7 @@ curl https://your-domain/api/link \
 ```bash
 curl https://your-domain/api/link \
   --request POST \
-  --header 'X-API-KEY: yourapikey' \
+  --header 'Authorization: Bearer yourapikey' \
   --json '{ "destinationUrl": "https://example.com", "namespace": "brand", "shortPath": "campaign" }'
 ```
 
@@ -93,7 +93,7 @@ curl https://your-domain/api/link \
 ```bash
 curl https://your-domain/api/link/abc12 \
   --request PATCH \
-  --header 'X-API-KEY: yourapikey' \
+  --header 'Authorization: Bearer yourapikey' \
   --json '{ "destinationUrl": "https://new-url.com" }'
 ```
 
@@ -102,14 +102,14 @@ curl https://your-domain/api/link/abc12 \
 ```bash
 curl https://your-domain/api/link/abc12 \
   --request DELETE \
-  --header 'X-API-KEY: yourapikey'
+  --header 'Authorization: Bearer yourapikey'
 ```
 
 **Get stats:**
 
 ```bash
 curl https://your-domain/api/link/abc12/stats/day \
-  --header 'X-API-KEY: yourapikey'
+  --header 'Authorization: Bearer yourapikey'
 ```
 
 ## Configuration

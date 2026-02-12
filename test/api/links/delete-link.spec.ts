@@ -1,7 +1,6 @@
 import { createExecutionContext, env, SELF, waitOnExecutionContext } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { messages } from '../../../src/actions';
-import { apiKeyHeader } from '../../../src/utils/constants';
 import { dbCreateLink, dbGetLink } from '../../../src/db';
 
 describe('DELETE /api/link/:id', () => {
@@ -33,7 +32,7 @@ describe('DELETE /api/link/:id', () => {
 
 		const response = await SELF.fetch(`https://example.com/api/link/${id}`, {
 			method: 'DELETE',
-			headers: { [apiKeyHeader]: apiKey },
+			headers: { Authorization: `Bearer ${apiKey}` },
 		});
 
 		expect(response.status).toBe(202);
@@ -48,7 +47,7 @@ describe('DELETE /api/link/:id', () => {
 	it('should return 404 if link does not exist', async () => {
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {
 			method: 'DELETE',
-			headers: { [apiKeyHeader]: apiKey },
+			headers: { Authorization: `Bearer ${apiKey}` },
 		});
 
 		expect(response.status).toBe(404);
@@ -65,7 +64,7 @@ describe('DELETE /api/link/:id', () => {
 	it('should reject request with invalid API key', async () => {
 		const response = await SELF.fetch('https://example.com/api/link/test-link', {
 			method: 'DELETE',
-			headers: { [apiKeyHeader]: 'invalid-key' },
+			headers: { Authorization: 'Bearer invalid-key' },
 		});
 
 		expect(response.status).toBe(403);

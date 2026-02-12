@@ -29,7 +29,7 @@ src/index.ts (Worker entry) → src/routes/ (Hono OpenAPI routes) → src/action
 
 ### Key Routing
 
-- `/api/link` — CRUD operations (auth required via `X-API-KEY` header)
+- `/api/link` — CRUD operations (auth required via `Authorization: Bearer` header)
 - `/api/slack/command` — Slack slash command handler
 - `/api/health` — Health check
 - `/:id` and `/:namespace/:shortPath` — Redirect resolution (no auth)
@@ -42,7 +42,7 @@ Short IDs are alphanumeric + `-_` (3–100 chars). When both namespace and short
 
 ### Auth
 
-Middleware in `src/middleware/auth.ts` checks the `X-API-KEY` header against `env.API_KEY`. Applied to `/api/link` routes only.
+Middleware in `src/middleware/auth.ts` checks the `Authorization: Bearer` header against `env.API_KEY`. Applied to `/api/link` routes only.
 
 ### Schemas
 

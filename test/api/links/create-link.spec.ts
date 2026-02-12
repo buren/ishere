@@ -1,7 +1,7 @@
 import { createExecutionContext, env, SELF, waitOnExecutionContext } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as utils from '../../../src/utils/generate-short-id';
-import { apiKeyHeader, reservedPaths } from '../../../src/utils/constants';
+import { reservedPaths } from '../../../src/utils/constants';
 import { messages } from '../../../src/actions';
 import { dbCreateLink, dbGetLink } from '../../../src/db';
 import { LinkResponseSchema } from '../../../src/schema';
@@ -28,7 +28,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -54,7 +54,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -69,7 +69,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		await waitOnExecutionContext(ctx);
@@ -89,7 +89,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -118,7 +118,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		const data = await response.json() as ResponseBody;
@@ -132,7 +132,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		const data = (await response.json()) as any;
@@ -158,7 +158,7 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 		const data = await response.json() as ResponseBody;
 		const expectedExpiresAt = new Date(
@@ -177,13 +177,13 @@ describe('POST /api/link', () => {
 		const response = await SELF.fetch('https://example.com/api/link', {
 			method: 'POST',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: 'invalidapikey' },
+			headers: { 'Content-Type': 'application/json', Authorization: 'Bearer invalidapikey' },
 		});
 
 		const data = (await response.json()) as any;
 		expect(data).toStrictEqual({
 			error: {
-				message: `Invalid API key. Use ${apiKeyHeader}: yourapikey`,
+				message: 'Invalid API key. Use Authorization: Bearer <token>',
 			},
 		});
 		expect(response.status).toBe(403);

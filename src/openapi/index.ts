@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { errorResponseSchemaWithExample, ValidationErrorResponseSchema } from '../schema';
-import { apiKeyHeader } from '../utils/constants';
 import { errorResponse } from '../utils/error-response';
 
 export const jsonResponseDoc = (status: number, schema: z.ZodType, description: string) => ({
@@ -35,11 +34,11 @@ export const standardResponsesDoc = (
 	...(auth
 		? {
 				401: {
-					content: { 'application/json': { schema: errorResponseSchemaWithExample(`Invalid authorization. Use ${apiKeyHeader}: yourapikey`) } },
+					content: { 'application/json': { schema: errorResponseSchemaWithExample('Invalid authorization. Use Authorization: Bearer <token>') } },
 					description: 'Authorization error',
 				},
 				403: {
-					content: { 'application/json': { schema: errorResponseSchemaWithExample(`Invalid API key. Use ${apiKeyHeader}: yourapikey`) } },
+					content: { 'application/json': { schema: errorResponseSchemaWithExample('Invalid API key. Use Authorization: Bearer <token>') } },
 					description: 'Authentication error',
 				},
 		  }

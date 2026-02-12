@@ -1,5 +1,4 @@
 import { apiReference } from "@scalar/hono-api-reference";
-import { apiKeyHeader } from "../../utils/constants";
 import { createApp } from "../app";
 
 const app = createApp();
@@ -63,9 +62,9 @@ app.doc('/openapi.json', {
 ## Example
 
 \`\`\`bash
-curl https://wshr.io/api/link      \\
+curl https://example.com/api/link      \\
   --request POST                   \\
-  --header '${apiKeyHeader}: yourapikey' \\
+  --header 'Authorization: Bearer yourapikey' \\
   --json '{ "destinationUrl": "https://example.com" }'
 \`\`\`
 `,

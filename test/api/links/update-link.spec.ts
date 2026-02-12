@@ -4,7 +4,6 @@ import { kvCreateLink } from '../../../src/kv/kv-create-link';
 import { LinkResponseSchema } from '../../../src/schema';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
 import { z } from 'zod';
-import { apiKeyHeader } from '../../../src/utils/constants';
 import { dbCreateLink, dbGetLink } from '../../../src/db';
 
 type ResponseBody = z.infer<typeof LinkResponseSchema>;
@@ -36,7 +35,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch(url, {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 		const data = (await response.json()) as ResponseBody;
 
@@ -69,7 +68,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch(url, {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 		const data = (await response.json()) as ResponseBody;
 
@@ -92,7 +91,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		expect(response.status).toBe(400);
@@ -117,7 +116,7 @@ describe('PATCH /api/link/:id', () => {
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {
 			method: 'PATCH',
 			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json', [apiKeyHeader]: apiKey },
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
 		});
 
 		expect(response.status).toBe(404);

@@ -8,7 +8,6 @@ import redirectRoutes from './redirects';
 import { Context } from 'hono';
 import { notFoundResponseData } from '../openapi';
 import { homePageHtml } from '../html';
-import { apiKeyHeader } from '../utils/constants';
 import { createApp } from './app';
 
 const app = createApp();
@@ -76,10 +75,9 @@ app.doc('/openapi.json', {
 	components: {
 		securitySchemes: {
 			apiKey: {
-				type: 'apiKey',
-				in: 'header',
-				name: apiKeyHeader,
-				description: `API key passed via the \`${apiKeyHeader}\` header.`,
+				type: 'http',
+				scheme: 'bearer',
+				description: 'API key passed as a Bearer token in the `Authorization` header.',
 			},
 		},
 	},
@@ -99,9 +97,9 @@ app.doc('/openapi.json', {
 ## Example
 
 \`\`\`bash
-curl https://wshr.io/api/link      \\
+curl https://example.com/api/link      \\
   --request POST                   \\
-  --header '${apiKeyHeader}: yourapikey' \\
+  --header 'Authorization: Bearer yourapikey' \\
   --json '{ "destinationUrl": "https://example.com" }'
 \`\`\`
 `,

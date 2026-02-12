@@ -18,7 +18,7 @@ describe('parseSlackCommand', () => {
 			id: 'xyz',
 		});
 
-		expect(parseSlackCommand('stats https://dev.wshr.io/name/xyz')).toEqual({
+		expect(parseSlackCommand('stats https://example.com/name/xyz')).toEqual({
 			command: 'stats',
 			id: 'name-xyz',
 		});
@@ -39,7 +39,7 @@ describe('parseSlackCommand', () => {
 			command: 'get',
 			id: 'xyz',
 		});
-		expect(parseSlackCommand('  get  https://dev.wshr.io/name/xyz  ')).toEqual({
+		expect(parseSlackCommand('  get  https://example.com/name/xyz  ')).toEqual({
 			command: 'get',
 			id: 'name-xyz',
 		});
