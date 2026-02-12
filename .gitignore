@@ -176,3 +176,7 @@ dist
 
 # Cloudflare Workers files
 worker-configuration.d.ts
+
+# LLMs
+/.claude/
+
