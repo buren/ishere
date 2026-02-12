@@ -8,10 +8,21 @@ import { linkWithUrl } from '../../utils/link-with-url';
 import qrResponse from '../../utils/qr-response';
 import { notFoundQrResponse } from '../../utils/not-found-qr-response';
 import trackLinkRedirect from '../../analytics/track-link-redirect';
+import { reservedPaths } from '../../utils/constants';
 import { createApp } from '../app';
 
 // Link shortening routes
 const app = createApp();
+
+// Short-circuit reserved paths to avoid unnecessary KV/D1 lookups
+app.use('/:first{.+}', async (c, next) => {
+	const first = c.req.param('first').split('/')[0];
+	if (reservedPaths.includes(first)) {
+		c.status(404);
+		return c.render(notFoundHtml);
+	}
+	return next();
+});
 
 const qrResponseDoc = {
 	200: {
