@@ -73,6 +73,16 @@ app.get(
 // OpenAPI specification
 app.doc('/openapi.json', {
 	openapi: '3.0.0',
+	components: {
+		securitySchemes: {
+			apiKey: {
+				type: 'apiKey',
+				in: 'header',
+				name: apiKeyHeader,
+				description: `API key passed via the \`${apiKeyHeader}\` header.`,
+			},
+		},
+	},
 	info: {
 		title: 'IsHere API',
 		version: '1.0.0',

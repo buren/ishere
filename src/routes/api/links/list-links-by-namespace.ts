@@ -26,7 +26,7 @@ app.openapi(
 		path: '/namespace/:namespace',
 		tags: ['API'],
 		request: {
-			...buildRequestDoc({ params: ListLinksByNamespaceParamsSchema, auth: false }),
+			...buildRequestDoc({ params: ListLinksByNamespaceParamsSchema }),
 			query: ListLinksByNamespaceQuerySchema,
 		},
 		responses: {

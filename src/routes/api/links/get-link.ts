@@ -20,7 +20,7 @@ app.openapi(
 		method: 'get',
 		path: '/:id',
 		tags: ['API'],
-		request: buildRequestDoc({ params: LinkParamsSchema, auth: false }),
+		request: buildRequestDoc({ params: LinkParamsSchema }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, LinkResponseSchema, 'Short link retrieved successfully'),
 			...standardResponsesDoc({ auth: false, validations: false }),

@@ -49,26 +49,12 @@ export const standardResponsesDoc = (
 export const buildRequestDoc = ({
 	schema,
 	params,
-	auth = true,
 }: {
 	schema?: z.ZodType;
 	params?: z.AnyZodObject;
-	auth?: boolean;
 }) => ({
 	...(schema ? { body: { content: { 'application/json': { schema } } } } : {}),
-	// TODO this shouldn't really be required, since we define the auth schema
-	// in the Scalar docs, but lets circle back to this later
 	...(params ? { params } : {}),
-	...(auth
-		? {
-				headers: z.object({
-					[apiKeyHeader]: z
-						.string()
-						.describe(`\`${apiKeyHeader}: yourapikey\`.`)
-						.openapi({ example: 'e78b1a338bc606d74aeab3823e694a40' }),
-				}),
-		  }
-		: {}),
 });
 
 export const buildSlackRequestDoc = ({ schema }: { schema: z.ZodType }) => ({
