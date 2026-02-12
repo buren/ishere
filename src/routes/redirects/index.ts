@@ -6,6 +6,7 @@ import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { linkWithUrl } from '../../utils/link-with-url';
 import qrResponse from '../../utils/qr-response';
+import { notFoundQrResponse } from '../../utils/not-found-qr-response';
 import trackLinkRedirect from '../../analytics/track-link-redirect';
 
 // Link shortening routes
@@ -49,15 +50,16 @@ app.openapi(
 	async (c: Context<{ Bindings: Env }>) => {
 		const { id } = c.req.param();
 		const value = await getLinkWithD1Fallback(c.env, id);
+		const { format, error_correction, cell_size, margin } = c.req.query();
 
-		// TODO we can't assume HTML format here, we need to respect the requested format
 		if (value === null) {
+			const { contentType, body } = notFoundQrResponse(format);
+			c.header('Content-Type', contentType);
 			c.status(404);
-			return c.render(notFoundHtml);
+			return c.body(body);
 		}
 
 		const { url } = linkWithUrl(c.req.url, value as LinkKVSchema);
-		const { format, error_correction, cell_size, margin } = c.req.query();
 		const { contentType, body } = await qrResponse(url, {
 			format,
 			error_correction,
@@ -113,15 +115,16 @@ app.openapi(
 		const { namespace, shortPath } = c.req.param();
 		const id = `${namespace}-${shortPath}`;
 		const value = await getLinkWithD1Fallback(c.env, id);
+		const { format, error_correction, cell_size, margin } = c.req.query();
 
-		// TODO we can't assume HTML format here, we need to respect the requested format
 		if (value === null) {
+			const { contentType, body } = notFoundQrResponse(format);
+			c.header('Content-Type', contentType);
 			c.status(404);
-			return c.render(notFoundHtml);
+			return c.body(body);
 		}
 
 		const { url } = linkWithUrl(c.req.url, value as LinkKVSchema);
-		const { format, error_correction, cell_size, margin } = c.req.query();
 		const { contentType, body } = await qrResponse(url, {
 			format,
 			error_correction,
