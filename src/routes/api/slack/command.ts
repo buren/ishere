@@ -4,6 +4,7 @@ import { handleSlackCommandAction } from '../../../actions';
 import { SlackCommandRequestSchema, SlackCommandResponseSchema } from '../../../schema';
 import { slackRespondWithMessage } from '../../../utils/slack-respond-with';
 import { SLACK_COMMAND_USAGE_MRKDWN } from '../../../utils/parse-slack-command';
+import timingSafeEqual from '../../../utils/timing-safe-equal';
 import { createApp } from '../../app';
 
 const SUCCESS_STATUS = 200;
@@ -28,7 +29,7 @@ ${SLACK_COMMAND_USAGE_MRKDWN}`,
 		// NOTE: We get the api key from the query string because the slack slash command
 		// request does not include the API key in the header.
 		const { apiKey } = c.req.query();
-		if (apiKey !== c.env.API_KEY) {
+		if (!apiKey || !(await timingSafeEqual(apiKey, c.env.API_KEY))) {
 			return c.json(slackRespondWithMessage('Invalid API key. Use query param: apiKey=yourapikey'), SUCCESS_STATUS);
 		}
 

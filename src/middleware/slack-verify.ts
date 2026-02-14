@@ -1,15 +1,8 @@
 import { Context, Next } from 'hono';
 import { errorResponse } from '../utils/error-response';
+import timingSafeEqual from '../utils/timing-safe-equal';
 
 const FIVE_MINUTES_IN_SECONDS = 60 * 5;
-
-const timingSafeEqual = async (a: string, b: string): Promise<boolean> => {
-	const encoder = new TextEncoder();
-	const aBuf = encoder.encode(a);
-	const bBuf = encoder.encode(b);
-	if (aBuf.byteLength !== bBuf.byteLength) return false;
-	return crypto.subtle.timingSafeEqual(aBuf, bBuf);
-};
 
 export default async function slackSignatureVerifyMiddleware(
 	c: Context<{ Bindings: Env; Variables: { slackBody: string } }>,
