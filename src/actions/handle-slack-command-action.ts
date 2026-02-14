@@ -1,6 +1,7 @@
 import StatusError from '../errors/status-error';
 import { linkRedirectsAnalytics } from '../analytics/link-redirects-analytics';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
+import { formatStatsMarkdown } from '../utils/format-stats-markdown';
 import { linkWithUrl } from '../utils/link-with-url';
 import { parseSlackCommand, SLACK_COMMAND_USAGE_MRKDWN } from '../utils/parse-slack-command';
 import { slackRespondWithMarkdown, slackRespondWithMessage } from '../utils/slack-respond-with';
@@ -43,31 +44,9 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 				return slackRespondWithMessage('No stats for that link, yet...');
 			}
 
-			const lastSeven = analytics.data.slice(-7);
-			const shortStats = lastSeven
-				.map((row) => {
-					const date = row.datetime.split(' ')[0]; // yyyy-mm-dd
-					const entryDate = new Date(date);
-
-					const sevenDaysAgo = new Date();
-					sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-					sevenDaysAgo.setHours(0, 0, 0, 0);
-
-					if (entryDate < sevenDaysAgo) {
-						return null;
-					}
-
-					return `- ${date}: ${row.totalRedirects}`;
-				})
-				.filter(Boolean);
-
-			const totalLastSeven = lastSeven.reduce((sum, row) => sum + Number(row.totalRedirects), 0);
-			const markdown = `*:bar_chart: Redirect stats*\n${shortStats.join("\n")}\n\nLast 7 days: ${totalLastSeven}\nLast 3 months: ${
-				analytics.totalRedirects
-			}`;
-
-			return slackRespondWithMarkdown(markdown);
-		} catch (_) {
+			return slackRespondWithMarkdown(formatStatsMarkdown(analytics));
+		} catch (error) {
+			console.error('Error fetching stats for Slack command:', error);
 			return slackRespondWithMessage('Sorry, something went wrong.');
 		}
 	} else if (command === 'get') {

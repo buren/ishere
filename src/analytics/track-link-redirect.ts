@@ -45,8 +45,8 @@ const trackLinkRedirect = async (id: string, { cf: cfProps, headers }: Request, 
 			],
 			indexes: [id],
 		});
-	} catch {
-		// Analytics write failures are non-critical — silently ignore
+	} catch (error) {
+		console.error('Analytics write failed:', error);
 	}
 };
 
