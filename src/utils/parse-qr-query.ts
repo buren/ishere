@@ -1,3 +1,4 @@
+import { defaultQrMargin, defaultQrSize } from './constants';
 import { QrFactoryOptions } from './qr-factory';
 
 const first = <T>(maybeArray: T | T[]): T => {
@@ -19,15 +20,15 @@ const parseQrQuery = (query: Record<string, string | string[] | undefined>): Par
 		format = 'svg',
 		type_number: typeNumber = 0, // (1 ~ 40), or 0 for auto detection
 		error_correction: errorCorrectionLevel = 'L', // 'L', 'M', 'Q', 'H'
-		cell_size: cellSize = '8',
-		margin = '4',
+		size = String(defaultQrSize),
+		margin = String(defaultQrMargin),
 	} = query;
 
 	return {
 		format: first(format) as QrFormat,
 		typeNumber: Number(first(typeNumber)) as TypeNumber,
 		errorCorrectionLevel: first(errorCorrectionLevel) as ErrorCorrectionLevel,
-		cellSize: Number(first(cellSize)),
+		size: Number(first(size)),
 		margin: Number(first(margin)),
 	};
 };

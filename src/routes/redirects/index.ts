@@ -62,7 +62,7 @@ app.openapi(
 	async (c: Context<{ Bindings: Env }>) => {
 		const { id } = c.req.param();
 		const value = await getLinkWithD1Fallback(c.env, id);
-		const { format, error_correction, cell_size, margin } = c.req.query();
+		const { format } = c.req.query();
 
 		if (value === null) {
 			const { contentType, body } = notFoundQrResponse(format);
@@ -72,12 +72,7 @@ app.openapi(
 		}
 
 		const { url } = linkWithUrl(c.req.url, value as LinkKVSchema);
-		const { contentType, body } = await qrResponse(url, {
-			format,
-			error_correction,
-			cell_size,
-			margin,
-		});
+		const { contentType, body } = await qrResponse(url, c.req.query());
 		c.header('Content-Type', contentType);
 		return c.body(body);
 	}
@@ -126,7 +121,7 @@ app.openapi(
 		const { namespace, shortPath } = c.req.param();
 		const id = `${namespace}-${shortPath}`;
 		const value = await getLinkWithD1Fallback(c.env, id);
-		const { format, error_correction, cell_size, margin } = c.req.query();
+		const { format } = c.req.query();
 
 		if (value === null) {
 			const { contentType, body } = notFoundQrResponse(format);
@@ -136,12 +131,7 @@ app.openapi(
 		}
 
 		const { url } = linkWithUrl(c.req.url, value as LinkKVSchema);
-		const { contentType, body } = await qrResponse(url, {
-			format,
-			error_correction,
-			cell_size,
-			margin,
-		});
+		const { contentType, body } = await qrResponse(url, c.req.query());
 		c.header('Content-Type', contentType);
 		return c.body(body);
 	}

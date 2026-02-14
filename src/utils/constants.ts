@@ -8,6 +8,12 @@ export const linkIdPattern = /^[a-zA-Z0-9_-]+$/;
 export const HEALTH_KEY = 'health';
 export const defaultListLimit = 50;
 export const maximumDestinationUrlLength = 8192;
+export const minimumQrSize = 29;
+export const maximumQrSize = 1024;
+export const defaultQrSize = 200;
+export const minimumQrMargin = 0;
+export const maximumQrMargin = 100;
+export const defaultQrMargin = 16;
 export const maximumListLimit = 100;
 export const reservedPaths = [
 	// Active routes

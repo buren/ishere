@@ -1,13 +1,19 @@
 import { z } from "zod";
 import {
 	defaultListLimit,
+	defaultQrMargin,
+	defaultQrSize,
 	defaultShortPathLength,
 	linkIdPattern,
 	maximumDestinationUrlLength,
 	maximumListLimit,
 	maximumNamespaceLength,
+	maximumQrMargin,
+	maximumQrSize,
 	maximumShortPathLength,
 	minimumExpirationTtl,
+	minimumQrMargin,
+	minimumQrSize,
 	minimumShortPathLength,
 } from '../utils/constants';
 import { messages } from "../actions";
@@ -168,9 +174,9 @@ export const SlackCommandResponseSchema = z.object({
 
 export const LinkQrRequestOptionsSchema = z.object({
 	format: z.enum(['svg', 'png', 'html']).optional().default('svg').describe('Format of the returned QR code.'),
-	error_correction: z.enum(['L', 'M', 'Q', 'H']).optional().default('L').describe('QR code error correcation.'),
-	cell_size: z.string().optional().default('8').describe('Size of QR code cells (is not pixels).'),
-	margin: z.string().optional().default('4').describe('Margin around QR code.'),
+	error_correction: z.enum(['L', 'M', 'Q', 'H']).optional().default('L').describe('QR code error correction level.'),
+	size: z.coerce.number().int().min(minimumQrSize).max(maximumQrSize).optional().default(defaultQrSize).describe(`Desired image size in pixels (${minimumQrSize}–${maximumQrSize}).`),
+	margin: z.coerce.number().int().min(minimumQrMargin).max(maximumQrMargin).optional().default(defaultQrMargin).describe(`Quiet zone around QR code in pixels (${minimumQrMargin}–${maximumQrMargin}).`),
 });
 
 const shortLinkIdParam = z
