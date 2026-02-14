@@ -1,11 +1,18 @@
 import StatusError from '../errors/status-error';
 import { linkRedirectsAnalytics } from '../analytics/link-redirects-analytics';
 import { Action, LinkAnalyticsGroupByOption } from '../types';
+import { RedirectStats } from '../analytics/link-redirects-analytics';
 import { isValidPathPattern } from '../utils/is-valid-path-pattern';
 import { messages, durationInSeconds } from './constants';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
 
-export const getLinkStatsAction: Action = async ({ data, env, ctx }) => {
+type GetLinkStatsBody = {
+	id: string;
+	groupBy: string;
+	excludeBotTraffic: boolean;
+};
+
+export const getLinkStatsAction: Action<GetLinkStatsBody, RedirectStats> = async ({ data, env, ctx }) => {
 	const { id, groupBy } = data;
 
 	if (isValidPathPattern(id) === false) {

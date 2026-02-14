@@ -4,7 +4,7 @@ import { Action } from '../types';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
 import { dbDeleteLink } from '../db';
 
-export const deleteLinkAction: Action = async ({ data, env, ctx }) => {
+export const deleteLinkAction: Action<{ id: string }, { message: string }> = async ({ data, env, ctx }) => {
 	const { id } = data;
 
 	const currentLink = await getLinkWithD1Fallback(env, id, ctx);

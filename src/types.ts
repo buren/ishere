@@ -29,4 +29,4 @@ type ActionContext<TBody = unknown> = {
 
 type ActionResult<T> = { data: T; };
 
-export type Action<TBody = any, TResponseBody = any> = (context: ActionContext<TBody>) => Promise<ActionResult<TResponseBody>>;
+export type Action<TBody = unknown, TResponseBody = unknown> = (context: ActionContext<TBody>) => Promise<ActionResult<TResponseBody>>;
