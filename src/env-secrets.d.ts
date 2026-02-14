@@ -6,4 +6,6 @@ interface Env {
 	SLACK_BOT_TOKEN?: string;
 	SLACK_CHANNEL_ID?: string;
 	SLACK_SIGNING_SECRET?: string;
+	WEBHOOK_URL?: string;
+	WEBHOOK_SECRET?: string;
 }

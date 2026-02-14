@@ -6,6 +6,7 @@ import { generateShortId } from '../utils/generate-short-id';
 import { linkWithUrl, LinkWithUrls } from '../utils/link-with-url';
 import { messages } from './constants';
 import { notifySlackLinkChange } from './notify-slack-action';
+import { notifyWebhook } from '../utils/webhook';
 import StatusError from '../errors/status-error';
 import { hashPassword } from '../utils/hash-password';
 
@@ -57,6 +58,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 		);
 		const result = linkWithUrl(url, link);
 		ctx.waitUntil(notifySlackLinkChange({ action: 'created', linkId: link.id, shortUrl: result.url, destinationUrl: link.destinationUrl, env }));
+		ctx.waitUntil(notifyWebhook({ event: 'link.created', link: result, env }));
 		return { data: result };
 	};
 

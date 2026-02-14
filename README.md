@@ -125,6 +125,8 @@ curl https://your-domain/api/link/abc12/stats/day \
 | `SLACK_BOT_TOKEN`          | No       | Slack Bot User OAuth Token (`xoxb-...`) for notifications |
 | `SLACK_CHANNEL_ID`         | No       | Slack channel ID (e.g. `C01AB2CDE3F`) for link-change notifications |
 | `SLACK_SIGNING_SECRET`     | No       | Slack signing secret for verifying interactive messages    |
+| `WEBHOOK_URL`              | No       | URL to receive POST notifications on link create/update/delete |
+| `WEBHOOK_SECRET`           | No       | HMAC-SHA256 signing secret for webhook payloads (sent in `X-Webhook-Signature-256` header) |
 
 Set secrets locally in `.dev.vars` and via `wrangler secret put` for deployed environments.
 

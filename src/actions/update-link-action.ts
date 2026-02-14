@@ -6,6 +6,7 @@ import { UpdateLinkRequestBodySchema } from '../schema';
 import { linkWithUrl } from '../utils/link-with-url';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
 import { notifySlackLinkChange } from './notify-slack-action';
+import { notifyWebhook } from '../utils/webhook';
 import { dbUpdateLink } from '../db';
 import { hashPassword } from '../utils/hash-password';
 
@@ -67,6 +68,7 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 
 	const result = linkWithUrl(url, updatedLink);
 	ctx.waitUntil(notifySlackLinkChange({ action: 'updated', linkId: updatedLink.id, shortUrl: result.url, destinationUrl: updatedLink.destinationUrl, env }));
+	ctx.waitUntil(notifyWebhook({ event: 'link.updated', link: result, env }));
 
 	return {
 		status: 202,
