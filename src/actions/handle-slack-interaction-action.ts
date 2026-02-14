@@ -49,6 +49,14 @@ export const handleSlackInteractionAction = async ({
 };
 
 const handleViewStats = async (linkId: string, responseUrl: string, env: Env) => {
+	if (!env.ACCOUNT_ID || !env.ANALYTICS_API_TOKEN) {
+		await slackRespondToUrl(responseUrl, {
+			...slackRespondWithMessage('Analytics is not configured.'),
+			replace_original: false,
+		});
+		return;
+	}
+
 	try {
 		const analytics = await linkRedirectsAnalytics(env, { id: linkId, groupBySeconds: durationInSeconds.day });
 

@@ -27,6 +27,10 @@ export const handleSlackCommandAction = async ({ text, url: requestUrl, env, ctx
 	if (command === 'help') {
 		return slackRespondWithMarkdown(SLACK_COMMAND_USAGE_MRKDWN);
 	} else if (command === 'stats') {
+		if (!env.ACCOUNT_ID || !env.ANALYTICS_API_TOKEN) {
+			return slackRespondWithMessage('Analytics is not configured.');
+		}
+
 		const value = id ? await kvGetLink(env.KV, id) : null;
 		if (!id || value === null) {
 			return slackRespondWithMessage('No link with that id exists.');

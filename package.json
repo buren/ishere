@@ -16,10 +16,10 @@
 				"description": "Secret key for authenticating API requests. Generate any random string."
 			},
 			"ANALYTICS_API_TOKEN": {
-				"description": "Cloudflare API token for querying [Analytics Engine](https://developers.cloudflare.com/analytics/analytics-engine/). Requires `Account Analytics: Read` permission."
+				"description": "Optional. Cloudflare API token for querying [Analytics Engine](https://developers.cloudflare.com/analytics/analytics-engine/). Requires `Account Analytics: Read` permission. Only needed for analytics features."
 			},
 			"ACCOUNT_ID": {
-				"description": "Your Cloudflare Account ID. Found on the [Workers & Pages overview](https://dash.cloudflare.com/?to=/:account/workers-and-pages)."
+				"description": "Optional. Your Cloudflare Account ID. Found on the [Workers & Pages overview](https://dash.cloudflare.com/?to=/:account/workers-and-pages). Only needed for analytics features."
 			}
 		}
 	},

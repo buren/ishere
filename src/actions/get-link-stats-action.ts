@@ -12,6 +12,10 @@ export const getLinkStatsAction: Action = async ({ data, env, ctx }) => {
 		throw new StatusError(400, 'Invalid id', 'id', 'invalid_format');
 	}
 
+	if (!env.ACCOUNT_ID || !env.ANALYTICS_API_TOKEN) {
+		throw new StatusError(503, 'Analytics is not configured. Set ACCOUNT_ID and ANALYTICS_API_TOKEN to enable.');
+	}
+
 	const value = await getLinkWithD1Fallback(env, id, ctx);
 	if (value === null) {
 		throw new StatusError(404, messages.notFound);

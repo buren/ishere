@@ -1,3 +1,4 @@
 API_KEY=
+# Optional — only needed for analytics features (stats, redirect tracking queries)
 ANALYTICS_API_TOKEN=
 ACCOUNT_ID=

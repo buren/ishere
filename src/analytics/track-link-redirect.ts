@@ -26,24 +26,28 @@ const trackLinkRedirect = async (id: string, { cf: cfProps, headers }: Request, 
 	const cf = cfProps || {};
 	const userAgent = headers.get('user-agent') || 'unknown';
 
-	env.REDIRECTS.writeDataPoint({
-		// NOTE the below is order dependent and needs to match analyticsTableMap
-		blobs: [
-			userAgent,
-			(cf?.colo as MaybeString) || null,
-			(cf?.country as MaybeString) || null,
-			(cf?.region as MaybeString) || null,
-			(cf?.city as MaybeString) || null,
-			(cf?.metroCode as MaybeString) || null,
-			(cf?.timezone as MaybeString) || null,
-			isbot(userAgent) ? 'true' : 'false',
-		],
-		doubles: [
-			parseCoordinate(cf?.latitude as MaybeString),
-			parseCoordinate(cf?.longitude as MaybeString),
-		],
-		indexes: [id],
-	});
+	try {
+		env.REDIRECTS.writeDataPoint({
+			// NOTE the below is order dependent and needs to match analyticsTableMap
+			blobs: [
+				userAgent,
+				(cf?.colo as MaybeString) || null,
+				(cf?.country as MaybeString) || null,
+				(cf?.region as MaybeString) || null,
+				(cf?.city as MaybeString) || null,
+				(cf?.metroCode as MaybeString) || null,
+				(cf?.timezone as MaybeString) || null,
+				isbot(userAgent) ? 'true' : 'false',
+			],
+			doubles: [
+				parseCoordinate(cf?.latitude as MaybeString),
+				parseCoordinate(cf?.longitude as MaybeString),
+			],
+			indexes: [id],
+		});
+	} catch {
+		// Analytics write failures are non-critical — silently ignore
+	}
 };
 
 export default trackLinkRedirect;
