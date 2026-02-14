@@ -12,21 +12,30 @@ import { hashPassword } from '../utils/hash-password';
 const isUniqueConstraintError = (error: unknown): boolean =>
 	error instanceof Error && error.message.includes('UNIQUE constraint failed');
 
-const buildLink = (id: string, destinationUrl: string, namespace: string | null, expirationTtl: number | null, redirectStatusCode: number, password?: string | null, scheduledAt?: string | null): LinkKVSchema => {
+const buildLink = (id: string, opts: Omit<BuildLinkOpts, 'namespace'> & { namespace: string | null }): LinkKVSchema => {
 	const now = Date.now();
 	const createdAt = new Date(now).toISOString();
 	return {
 		id,
-		destinationUrl,
-		namespace: namespace ?? null,
+		destinationUrl: opts.destinationUrl,
+		namespace: opts.namespace ?? null,
 		createdAt,
 		updatedAt: createdAt,
-		expiresAt: expirationTtl ? new Date(now + expirationTtl * 1000).toISOString() : null,
-		expirationTtl: expirationTtl ?? null,
-		redirectStatusCode,
-		password: password ?? null,
-		scheduledAt: scheduledAt ?? null,
+		expiresAt: opts.expirationTtl ? new Date(now + opts.expirationTtl * 1000).toISOString() : null,
+		expirationTtl: opts.expirationTtl ?? null,
+		redirectStatusCode: opts.redirectStatusCode,
+		password: opts.password ?? null,
+		scheduledAt: opts.scheduledAt ?? null,
 	};
+};
+
+type BuildLinkOpts = {
+	destinationUrl: string;
+	namespace: string | null;
+	expirationTtl: number | null;
+	redirectStatusCode: number;
+	password?: string | null;
+	scheduledAt?: string | null;
 };
 
 export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = async ({ data, url, env, ctx }) => {
@@ -40,6 +49,16 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 
 	const withNamespace = (key: string) => [namespace, key].filter(Boolean).join('-');
 	const isReserved = (id: string) => reservedPaths.includes(id.split('-')[0]);
+	const linkOpts: BuildLinkOpts = { destinationUrl, namespace, expirationTtl: expirationTtl ?? null, redirectStatusCode, password: hashedPassword, scheduledAt };
+
+	const persistAndNotify = (link: LinkKVSchema): { data: LinkWithUrls } => {
+		ctx.waitUntil(
+			env.KV.put(link.id, JSON.stringify(link), { expirationTtl: expirationTtl ?? undefined })
+		);
+		const result = linkWithUrl(url, link);
+		ctx.waitUntil(notifySlackLinkChange({ action: 'created', linkId: link.id, shortUrl: result.url, destinationUrl: link.destinationUrl, env }));
+		return { data: result };
+	};
 
 	if (shortPath) {
 		const id = withNamespace(shortPath);
@@ -48,7 +67,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 			throw new StatusError(400, messages.idIsReserved, 'id', 'reserved');
 		}
 
-		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null, redirectStatusCode, hashedPassword, scheduledAt);
+		const link = buildLink(id, linkOpts);
 
 		try {
 			await dbCreateLink(env.D1, link);
@@ -59,14 +78,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 			throw error;
 		}
 
-		ctx.waitUntil(
-			env.KV.put(id, JSON.stringify(link), { expirationTtl: expirationTtl ?? undefined })
-		);
-
-		const result = linkWithUrl(url, link);
-		ctx.waitUntil(notifySlackLinkChange({ action: 'created', linkId: link.id, shortUrl: result.url, destinationUrl: link.destinationUrl, env }));
-
-		return { data: result };
+		return persistAndNotify(link);
 	}
 
 	// Random path — retry on collision
@@ -76,19 +88,11 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 
 		if (isReserved(id)) continue;
 
-		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null, redirectStatusCode, hashedPassword, scheduledAt);
+		const link = buildLink(id, linkOpts);
 
 		try {
 			await dbCreateLink(env.D1, link);
-
-			ctx.waitUntil(
-				env.KV.put(id, JSON.stringify(link), { expirationTtl: expirationTtl ?? undefined })
-			);
-
-			const result = linkWithUrl(url, link);
-			ctx.waitUntil(notifySlackLinkChange({ action: 'created', linkId: link.id, shortUrl: result.url, destinationUrl: link.destinationUrl, env }));
-
-			return { data: result };
+			return persistAndNotify(link);
 		} catch (error) {
 			if (isUniqueConstraintError(error)) continue;
 			throw error;
