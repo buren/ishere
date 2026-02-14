@@ -7,11 +7,12 @@ import { linkWithUrl, LinkWithUrls } from '../utils/link-with-url';
 import { messages } from './constants';
 import { notifySlackLinkChange } from './notify-slack-action';
 import StatusError from '../errors/status-error';
+import { hashPassword } from '../utils/hash-password';
 
 const isUniqueConstraintError = (error: unknown): boolean =>
 	error instanceof Error && error.message.includes('UNIQUE constraint failed');
 
-const buildLink = (id: string, destinationUrl: string, namespace: string | null, expirationTtl: number | null, redirectStatusCode: number): LinkKVSchema => {
+const buildLink = (id: string, destinationUrl: string, namespace: string | null, expirationTtl: number | null, redirectStatusCode: number, password?: string | null): LinkKVSchema => {
 	const now = Date.now();
 	const createdAt = new Date(now).toISOString();
 	return {
@@ -23,12 +24,14 @@ const buildLink = (id: string, destinationUrl: string, namespace: string | null,
 		expiresAt: expirationTtl ? new Date(now + expirationTtl * 1000).toISOString() : null,
 		expirationTtl: expirationTtl ?? null,
 		redirectStatusCode,
+		password: password ?? null,
 	};
 };
 
 export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = async ({ data, url, env, ctx }) => {
-	const { destinationUrl, shortPath, namespace = null, length: lengthArg, expirationTtl, redirectStatusCode } = data;
+	const { destinationUrl, shortPath, namespace = null, length: lengthArg, expirationTtl, redirectStatusCode, password } = data;
 	const length = lengthArg ?? (Number(env.DEFAULT_SHORT_PATH_LENGTH) || defaultShortPathLength);
+	const hashedPassword = password ? await hashPassword(password) : null;
 
 	const withNamespace = (key: string) => [namespace, key].filter(Boolean).join('-');
 	const isReserved = (id: string) => reservedPaths.includes(id.split('-')[0]);
@@ -40,7 +43,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 			throw new StatusError(400, messages.idIsReserved, 'id', 'reserved');
 		}
 
-		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null, redirectStatusCode);
+		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null, redirectStatusCode, hashedPassword);
 
 		try {
 			await dbCreateLink(env.D1, link);
@@ -68,7 +71,7 @@ export const createLinkAction: Action<CreateLinkRequestBody, LinkWithUrls> = asy
 
 		if (isReserved(id)) continue;
 
-		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null, redirectStatusCode);
+		const link = buildLink(id, destinationUrl, namespace, expirationTtl ?? null, redirectStatusCode, hashedPassword);
 
 		try {
 			await dbCreateLink(env.D1, link);

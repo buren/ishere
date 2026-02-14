@@ -1,7 +1,7 @@
 import { getLinkWithD1Fallback } from '../../utils/get-link-with-d1-fallback';
 import { LinkKVSchema } from '../../types';
 import { LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../schema';
-import { notFoundHtml, linkPreviewHtml } from '../../html';
+import { notFoundHtml, linkPreviewHtml, passwordPromptHtml } from '../../html';
 import { createRoute, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { linkWithUrl } from '../../utils/link-with-url';
@@ -10,6 +10,7 @@ import { notFoundQrResponse } from '../../utils/not-found-qr-response';
 import trackLinkRedirect from '../../analytics/track-link-redirect';
 import { defaultRedirectStatusCode, reservedPaths } from '../../utils/constants';
 import { createApp } from '../app';
+import { verifyPassword } from '../../utils/hash-password';
 
 // Link shortening routes
 const app = createApp();
@@ -137,11 +138,43 @@ app.openapi(
 		}
 
 		const link = value as LinkKVSchema;
+
+		if (link.password) {
+			return c.html(passwordPromptHtml(`/${id}`));
+		}
+
 		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 
 		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
 	}
 );
+
+app.post('/:id', async (c: Context<{ Bindings: Env }>) => {
+	const { id } = c.req.param();
+	const value = await getLinkWithD1Fallback(c.env, id);
+
+	if (value === null) {
+		c.status(404);
+		return c.render(notFoundHtml);
+	}
+
+	const link = value as LinkKVSchema;
+
+	if (!link.password) {
+		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
+		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+	}
+
+	const body = await c.req.parseBody();
+	const password = body['password'];
+
+	if (typeof password !== 'string' || !(await verifyPassword(password, link.password))) {
+		return c.html(passwordPromptHtml(`/${id}`, 'Incorrect password.'));
+	}
+
+	c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
+	return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+});
 
 app.openapi(
 	createRoute({
@@ -222,11 +255,44 @@ app.openapi(
 		}
 
 		const link = value as LinkKVSchema;
+
+		if (link.password) {
+			return c.html(passwordPromptHtml(`/${namespace}/${shortPath}`));
+		}
+
 		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 
 		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
 	}
 );
+
+app.post('/:namespace/:shortPath', async (c: Context<{ Bindings: Env }>) => {
+	const { namespace, shortPath } = c.req.param();
+	const id = `${namespace}-${shortPath}`;
+	const value = await getLinkWithD1Fallback(c.env, id);
+
+	if (value === null) {
+		c.status(404);
+		return c.render(notFoundHtml);
+	}
+
+	const link = value as LinkKVSchema;
+
+	if (!link.password) {
+		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
+		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+	}
+
+	const body = await c.req.parseBody();
+	const password = body['password'];
+
+	if (typeof password !== 'string' || !(await verifyPassword(password, link.password))) {
+		return c.html(passwordPromptHtml(`/${namespace}/${shortPath}`, 'Incorrect password.'));
+	}
+
+	c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
+	return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+});
 
 app.use('/*', async (c: Context<{ Bindings: Env }>) => {
 	c.status(404);

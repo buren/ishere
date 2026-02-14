@@ -42,6 +42,7 @@ describe('POST /api/link', () => {
 			updatedAt: testDateISO,
 			expiresAt: null,
 			redirectStatusCode: 302,
+			passwordProtected: false,
 			url: 'https://example.com/customPath',
 			qrUrl: 'https://example.com/customPath/qr',
 		});
@@ -198,6 +199,21 @@ describe('POST /api/link', () => {
 		const data = await response.json() as ResponseBody;
 		expect(data.redirectStatusCode).toBe(302);
 		expect(response.status).toBe(201);
+	});
+
+	it('should create link with password and return passwordProtected: true', async () => {
+		const requestBody = { destinationUrl: 'https://example.com', shortPath: 'pwLink', password: 'mysecret' };
+
+		const response = await SELF.fetch('https://example.com/api/link', {
+			method: 'POST',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+
+		const data = await response.json() as ResponseBody;
+		expect(response.status).toBe(201);
+		expect(data.passwordProtected).toBe(true);
+		expect((data as any).password).toBeUndefined();
 	});
 
 	it('should return error for invalid api key', async () => {

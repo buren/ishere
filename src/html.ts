@@ -103,6 +103,7 @@ export const linkPreviewHtml = (link: import('./utils/link-with-url').LinkWithUr
 		`<tr><td>Destination</td><td><a href="${link.destinationUrl}">${link.destinationUrl}</a></td></tr>`,
 		`<tr><td>Short URL</td><td><a href="${link.url}">${link.url}</a></td></tr>`,
 		link.namespace ? `<tr><td>Namespace</td><td>${link.namespace}</td></tr>` : '',
+		link.passwordProtected ? `<tr><td>Password</td><td>Protected</td></tr>` : '',
 		`<tr><td>Redirect</td><td>${link.redirectStatusCode === 301 ? '301 Permanent' : '302 Temporary'}</td></tr>`,
 		`<tr><td>Created</td><td>${link.createdAt}</td></tr>`,
 		`<tr><td>Updated</td><td>${link.updatedAt}</td></tr>`,
@@ -125,6 +126,24 @@ export const linkPreviewHtml = (link: import('./utils/link-with-url').LinkWithUr
 		`),
 	});
 };
+
+export const passwordPromptHtml = (actionUrl: string, error?: string) =>
+	htmlPage({
+		title: 'Password Required',
+		body: bodyContainer(`
+			<h1>Password <span class="highlight">Required</span></h1>
+			<p>This link is password-protected. Enter the password to continue.</p>
+			${error ? `<p style="color: #e74c3c; font-weight: 600;">${error}</p>` : ''}
+			<form method="POST" action="${actionUrl}">
+				<input type="password" name="password" placeholder="Enter password" required
+					style="width: 100%; padding: 0.6rem; font-size: 1rem; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; margin-bottom: 1rem;" />
+				<button type="submit"
+					style="width: 100%; padding: 0.6rem; font-size: 1rem; background: #05c46b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+					Continue
+				</button>
+			</form>
+		`),
+	});
 
 export const homePageHtml = (docsPath: string) =>
 	htmlPage({

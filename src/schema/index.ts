@@ -86,6 +86,12 @@ export const CreateLinkRequestSchema = z.object({
 		.optional()
 		.default(defaultRedirectStatusCode)
 		.describe('HTTP status code for redirects (301 permanent, 302 temporary).'),
+	password: z
+		.string()
+		.max(128)
+		.nullable()
+		.optional()
+		.describe('Password to protect the link. Visitors must enter this password before being redirected.'),
 });
 
 export type CreateLinkRequestBody = z.infer<typeof CreateLinkRequestSchema>;
@@ -105,6 +111,12 @@ export const UpdateLinkRequestSchema = z.object({
 		.union([z.literal(301), z.literal(302)])
 		.optional()
 		.describe('HTTP status code for redirects (301 permanent, 302 temporary).'),
+	password: z
+		.string()
+		.max(128)
+		.nullable()
+		.optional()
+		.describe('Password to protect the link. Send null to remove password protection.'),
 });
 
 export type UpdateLinkRequestBodySchema = z.infer<typeof UpdateLinkRequestSchema>;
@@ -133,6 +145,7 @@ export const LinkResponseSchema = z.object({
 	updatedAt: z.string().datetime().describe('Update timestamp.'),
 	expiresAt: z.string().datetime().nullable().optional().describe('Expires at timestamp.'),
 	redirectStatusCode: z.number().describe('HTTP status code for redirects (301 or 302).'),
+	passwordProtected: z.boolean().describe('Whether the link requires a password to access.'),
 });
 
 export const ListLinksByNamespaceQuerySchema = z.object({

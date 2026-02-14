@@ -111,6 +111,49 @@ describe('PATCH /api/link/:id', () => {
 		expect(dbLink?.redirectStatusCode).toBe(301);
 	});
 
+	it('should update a link to add password', async () => {
+		const linkId = 'add-pw';
+		const link = await kvCreateLink(env.KV, { id: linkId, destinationUrl: 'https://example.com' });
+		await dbCreateLink(env.D1, link);
+
+		const updatedAt = new Date('2025-05-04T23:00:00.000Z');
+		vi.setSystemTime(updatedAt);
+
+		const requestBody = { password: 'newsecret' };
+		const url = `https://example.com/api/link/${linkId}`;
+		const response = await SELF.fetch(url, {
+			method: 'PATCH',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+		const data = (await response.json()) as ResponseBody;
+
+		expect(response.status).toBe(202);
+		expect(data.passwordProtected).toBe(true);
+		expect((data as any).password).toBeUndefined();
+	});
+
+	it('should update a link to remove password by sending null', async () => {
+		const linkId = 'rm-pw';
+		const link = await kvCreateLink(env.KV, { id: linkId, destinationUrl: 'https://example.com', password: 'hashed' });
+		await dbCreateLink(env.D1, link);
+
+		const updatedAt = new Date('2025-05-04T23:00:00.000Z');
+		vi.setSystemTime(updatedAt);
+
+		const requestBody = { password: null };
+		const url = `https://example.com/api/link/${linkId}`;
+		const response = await SELF.fetch(url, {
+			method: 'PATCH',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+		const data = (await response.json()) as ResponseBody;
+
+		expect(response.status).toBe(202);
+		expect(data.passwordProtected).toBe(false);
+	});
+
 	it('should should return 400 on invalid request body', async () => {
 		const requestBody = { destinationUrl: '' };
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {
