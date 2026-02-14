@@ -187,7 +187,8 @@ export const passwordPromptHtml = (actionUrl: string, error?: string) =>
 			${error ? `<p style="color: #e74c3c; font-weight: 600;">${error}</p>` : ''}
 			<form method="POST" action="${actionUrl}">
 				<input type="password" name="password" placeholder="Enter password" required
-					style="width: 100%; padding: 0.6rem; font-size: 1rem; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; margin-bottom: 1rem;" />
+					style="width: 100%; padding: 0.6rem; font-size: 1rem; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; margin-bottom: 1rem;"
+					onkeydown="if(event.key==='Enter'){this.form.submit()}" />
 				<button type="submit"
 					style="width: 100%; padding: 0.6rem; font-size: 1rem; background: #05c46b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
 					Continue
