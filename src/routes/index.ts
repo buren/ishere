@@ -73,6 +73,13 @@ app.get(
 // OpenAPI specification
 app.doc('/openapi.json', {
 	openapi: '3.0.0',
+	tags: [
+		{ name: 'Redirects', description: 'Resolve short links and redirect to their destination URLs.' },
+		{ name: 'Link Preview', description: 'Public preview pages showing link metadata without redirecting.' },
+		{ name: 'API', description: 'Create, read, update, delete, and list short links (requires authentication).' },
+		{ name: 'QR', description: 'Generate QR codes for short links in PNG, SVG, or HTML formats.' },
+		{ name: 'Slack', description: 'Slack slash command integration for managing links from Slack.' },
+	],
 	components: {
 		securitySchemes: {
 			apiKey: {
