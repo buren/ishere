@@ -16,6 +16,11 @@ export const maximumQrMargin = 100;
 export const defaultQrMargin = 16;
 export const maximumListLimit = 100;
 export const defaultRedirectStatusCode = 302;
+// Webhook delivery runs inside ctx.waitUntil() which has a 30s max lifetime.
+// With 3 retries and 1s base delay the worst case is ~7s (1s + 2s + 4s) plus fetch time.
+export const webhookMaxRetries = 3;
+export const webhookRetryBaseDelayMs = 1000;
+
 export const reservedPaths = [
 	// Active routes
 	'api',

@@ -26,13 +26,15 @@ const makeEnv = (overrides: Partial<Env> = {}): Env =>
 describe('notifyWebhook', () => {
 	beforeEach(() => {
 		vi.resetAllMocks();
+		vi.useFakeTimers();
 	});
 
 	afterEach(() => {
 		globalThis.fetch = originalFetch;
+		vi.useRealTimers();
 	});
 
-	it('should POST with correct payload when WEBHOOK_URL is set', async () => {
+	it('should POST with correct payload including event ID', async () => {
 		globalThis.fetch = vi.fn().mockResolvedValue({ ok: true });
 
 		await notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
@@ -43,6 +45,7 @@ describe('notifyWebhook', () => {
 		expect(opts.method).toBe('POST');
 
 		const body = JSON.parse(opts.body);
+		expect(body.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
 		expect(body.event).toBe('link.created');
 		expect(body.timestamp).toBeDefined();
 		expect(body.link).toEqual(mockLink);
@@ -74,11 +77,86 @@ describe('notifyWebhook', () => {
 		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 
-	it('should not throw on fetch failure', async () => {
+	it('should retry on 5xx response with exponential backoff', async () => {
+		globalThis.fetch = vi
+			.fn()
+			.mockResolvedValueOnce({ ok: false, status: 503 })
+			.mockResolvedValueOnce({ ok: false, status: 500 })
+			.mockResolvedValueOnce({ ok: true });
+
+		const promise = notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
+
+		// First retry after 1000ms
+		await vi.advanceTimersByTimeAsync(1000);
+		// Second retry after 2000ms
+		await vi.advanceTimersByTimeAsync(2000);
+
+		await promise;
+
+		expect(globalThis.fetch).toHaveBeenCalledTimes(3);
+	});
+
+	it('should retry on 429 response', async () => {
+		globalThis.fetch = vi
+			.fn()
+			.mockResolvedValueOnce({ ok: false, status: 429 })
+			.mockResolvedValueOnce({ ok: true });
+
+		const promise = notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
+		await vi.advanceTimersByTimeAsync(1000);
+		await promise;
+
+		expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+	});
+
+	it('should not retry on 4xx client errors (except 429)', async () => {
+		globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 400 });
+
+		await notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
+
+		expect(globalThis.fetch).toHaveBeenCalledOnce();
+	});
+
+	it('should retry on network errors', async () => {
+		globalThis.fetch = vi
+			.fn()
+			.mockRejectedValueOnce(new Error('Network error'))
+			.mockResolvedValueOnce({ ok: true });
+
+		const promise = notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
+		await vi.advanceTimersByTimeAsync(1000);
+		await promise;
+
+		expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+	});
+
+	it('should not throw after all retries are exhausted', async () => {
 		globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-		await expect(
-			notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() })
-		).resolves.toBeUndefined();
+		const promise = notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
+
+		// Advance through all retry delays: 1000 + 2000 + 4000
+		await vi.advanceTimersByTimeAsync(1000);
+		await vi.advanceTimersByTimeAsync(2000);
+		await vi.advanceTimersByTimeAsync(4000);
+
+		await expect(promise).resolves.toBeUndefined();
+		// 1 initial + 3 retries
+		expect(globalThis.fetch).toHaveBeenCalledTimes(4);
+	});
+
+	it('should send the same body (and event ID) on retries', async () => {
+		globalThis.fetch = vi
+			.fn()
+			.mockResolvedValueOnce({ ok: false, status: 502 })
+			.mockResolvedValueOnce({ ok: true });
+
+		const promise = notifyWebhook({ event: 'link.created', link: mockLink, env: makeEnv() });
+		await vi.advanceTimersByTimeAsync(1000);
+		await promise;
+
+		const body1 = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body;
+		const body2 = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body;
+		expect(body1).toBe(body2);
 	});
 });

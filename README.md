@@ -12,6 +12,7 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 - **Analytics** — per-link redirect stats with bot detection, grouped by hour or day
 - **Link expiration** — optional TTL-based expiry with automatic cleanup
 - **Slack integration** — slash commands, bot notifications on link create/update, interactive buttons for stats and details
+- **Webhooks** — receive POST notifications on link create/update/delete with HMAC signing, works with Zapier, Make, and custom integrations
 - **OpenAPI docs** — interactive API reference at `/`
 - **No propagation delay** — links work immediately after creation, even across regions (see [Architecture](#architecture))
 

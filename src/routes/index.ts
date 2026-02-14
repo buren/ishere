@@ -100,6 +100,7 @@ app.doc('/openapi.json', {
 - 🛤️ **Customizable Paths:** Define namespaces and custom paths for short links (e.g., \`/your-brand/ee2A2\`, \`/your-brand/your-campaign-link\`).
 - 📸 **QR Code Generation:** Generate QR codes in SVG, PNG, or HTML formats by appending \`/qr\` to the redirect path.
 - 💬 **Slack Integration:** Slash commands, bot notifications on link create/update, and interactive buttons for stats and details.
+- 🔗 **Webhooks:** Receive POST notifications on link create/update/delete with optional HMAC signing — integrate with Zapier, Make, or any HTTP endpoint.
 - ⏳ **Time-to-Live (TTL):** Set expiration times for short links.
 
 ## Example

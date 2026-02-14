@@ -1,4 +1,5 @@
 import { LinkWithUrls } from './link-with-url';
+import { webhookMaxRetries, webhookRetryBaseDelayMs } from './constants';
 
 type WebhookEvent = 'link.created' | 'link.updated' | 'link.deleted';
 
@@ -7,6 +8,8 @@ type NotifyWebhookParams = {
 	link: LinkWithUrls;
 	env: Env;
 };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const sign = async (secret: string, body: string): Promise<string> => {
 	const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
@@ -25,6 +28,7 @@ export const notifyWebhook = async ({ event, link, env }: NotifyWebhookParams): 
 
 	try {
 		const body = JSON.stringify({
+			id: crypto.randomUUID(),
 			event,
 			timestamp: new Date().toISOString(),
 			link,
@@ -36,7 +40,21 @@ export const notifyWebhook = async ({ event, link, env }: NotifyWebhookParams): 
 			headers['X-Webhook-Signature-256'] = `sha256=${await sign(env.WEBHOOK_SECRET, body)}`;
 		}
 
-		await fetch(env.WEBHOOK_URL, { method: 'POST', headers, body });
+		for (let attempt = 0; attempt <= webhookMaxRetries; attempt++) {
+			try {
+				const response = await fetch(env.WEBHOOK_URL, { method: 'POST', headers, body });
+				if (response.ok) return;
+				if (response.status < 500 && response.status !== 429) return;
+			} catch {
+				// Network error — fall through to retry
+			}
+
+			if (attempt < webhookMaxRetries) {
+				await sleep(webhookRetryBaseDelayMs * 2 ** attempt);
+			}
+		}
+
+		console.error('Webhook delivery failed after retries');
 	} catch (error) {
 		console.error('Failed to notify webhook:', error);
 	}
