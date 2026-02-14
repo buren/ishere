@@ -104,7 +104,47 @@ export const scheduledNotActiveHtml = (scheduledAt: string) =>
 		body: bodyContainer(`
 			<h1>Not Yet <span class="highlight">Available</span></h1>
 			<p>This link is scheduled to go live on:</p>
+			<div id="countdown" style="font-size: 1.4rem; font-weight: 700; min-height: 2rem;"></div>
 			<p style="font-weight: 600; font-size: 1.1rem;">${scheduledAt}</p>
+			<script>
+			(function(){
+				var target = new Date("${scheduledAt}").getTime();
+				var el = document.getElementById("countdown");
+				function pad(n){ return n < 10 ? "0" + n : n; }
+				function update(){
+					var now = Date.now();
+					var diff = target - now;
+					if(diff <= 0){ el.textContent = "Live now! Redirecting..."; location.reload(); return; }
+					var s = Math.floor(diff / 1000);
+					var m = Math.floor(s / 60); s %= 60;
+					var h = Math.floor(m / 60); m %= 60;
+					var d = Math.floor(h / 24); h %= 24;
+					var mo = 0, y = 0;
+					var dt = new Date(now);
+					while(true){
+						var next = new Date(dt); next.setMonth(next.getMonth() + 1);
+						if(next.getTime() > target) break;
+						dt = next; mo++;
+					}
+					y = Math.floor(mo / 12); mo %= 12;
+					var remaining = target - dt.getTime();
+					d = Math.floor(remaining / 86400000);
+					h = Math.floor((remaining % 86400000) / 3600000);
+					m = Math.floor((remaining % 3600000) / 60000);
+					s = Math.floor((remaining % 60000) / 1000);
+					var parts = [];
+					if(y) parts.push(y + (y === 1 ? " year" : " years"));
+					if(mo) parts.push(mo + (mo === 1 ? " month" : " months"));
+					if(d) parts.push(d + (d === 1 ? " day" : " days"));
+					if(h) parts.push(pad(h) + "h");
+					if(m) parts.push(pad(m) + "m");
+					if(s) parts.push(pad(s) + "s");
+					el.textContent = parts.join(" ");
+				}
+				update();
+				setInterval(update, 1000);
+			})();
+			</script>
 		`),
 	});
 
