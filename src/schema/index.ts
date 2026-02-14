@@ -3,6 +3,7 @@ import {
 	defaultListLimit,
 	defaultShortPathLength,
 	linkIdPattern,
+	maximumDestinationUrlLength,
 	maximumListLimit,
 	maximumNamespaceLength,
 	maximumShortPathLength,
@@ -39,7 +40,7 @@ export const ValidationErrorResponseSchema = z.object({
 });
 
 export const CreateLinkRequestSchema = z.object({
-	destinationUrl: z.string().url().describe('URL to be shortened.'),
+	destinationUrl: z.string().url().max(maximumDestinationUrlLength).describe('URL to be shortened.'),
 	shortPath: z
 		.string()
 		.regex(linkIdPattern)
@@ -78,7 +79,7 @@ export const CreateLinkRequestSchema = z.object({
 export type CreateLinkRequestBody = z.infer<typeof CreateLinkRequestSchema>;
 
 export const UpdateLinkRequestSchema = z.object({
-	destinationUrl: z.string().url().nullable().optional().describe('URL to be shortened.'),
+	destinationUrl: z.string().url().max(maximumDestinationUrlLength).nullable().optional().describe('URL to be shortened.'),
 	expirationTtl: z
 		.number()
 		.int()

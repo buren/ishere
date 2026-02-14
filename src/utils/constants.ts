@@ -7,6 +7,7 @@ export const minimumExpirationTtl = 60;
 export const linkIdPattern = /^[a-zA-Z0-9_-]+$/;
 export const HEALTH_KEY = 'health';
 export const defaultListLimit = 50;
+export const maximumDestinationUrlLength = 8192;
 export const maximumListLimit = 100;
 export const reservedPaths = [
 	// Active routes
