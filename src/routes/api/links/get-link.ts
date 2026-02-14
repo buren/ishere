@@ -4,7 +4,7 @@ import { getLinkAction } from '../../../actions';
 import { LinkParamsSchema, LinkResponseSchema } from '../../../schema';
 import { createApp } from '../../app';
 
-const SUCCESS_STATUS = 202;
+const SUCCESS_STATUS = 200;
 
 const app = createApp();
 

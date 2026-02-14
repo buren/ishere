@@ -13,7 +13,12 @@ app.post('/interact', slackSignatureVerifyMiddleware, async (c) => {
 		return c.json({ error: 'Missing payload' }, 400);
 	}
 
-	const payload = JSON.parse(payloadStr);
+	let payload;
+	try {
+		payload = JSON.parse(payloadStr);
+	} catch {
+		return c.json({ error: 'Invalid payload' }, 400);
+	}
 
 	c.executionCtx.waitUntil(
 		handleSlackInteractionAction({

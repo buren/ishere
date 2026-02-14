@@ -29,7 +29,7 @@ describe('GET /api/link/:id', () => {
 				method: 'GET',
 			});
 
-			expect(response.status).toBe(202);
+			expect(response.status).toBe(200);
 			const data = await response.json() as any;
 			const expected = linkWithUrl(url, {
 				...linkData,
@@ -59,7 +59,7 @@ describe('GET /api/link/:id', () => {
 				method: 'GET',
 			});
 
-			expect(response.status).toBe(202);
+			expect(response.status).toBe(200);
 			const data = await response.json() as any;
 			const expected = linkWithUrl(url, {
 				...linkData,
