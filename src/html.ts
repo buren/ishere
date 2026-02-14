@@ -98,6 +98,34 @@ export const qrCodeHtml = ({ body }: QrCodeHtmlOptions) => `
 </body>
 </html>`;
 
+export const linkPreviewHtml = (link: import('./utils/link-with-url').LinkWithUrls) => {
+	const rows = [
+		`<tr><td>Destination</td><td><a href="${link.destinationUrl}">${link.destinationUrl}</a></td></tr>`,
+		`<tr><td>Short URL</td><td><a href="${link.url}">${link.url}</a></td></tr>`,
+		link.namespace ? `<tr><td>Namespace</td><td>${link.namespace}</td></tr>` : '',
+		`<tr><td>Redirect</td><td>${link.redirectStatusCode === 301 ? '301 Permanent' : '302 Temporary'}</td></tr>`,
+		`<tr><td>Created</td><td>${link.createdAt}</td></tr>`,
+		`<tr><td>Updated</td><td>${link.updatedAt}</td></tr>`,
+		link.expiresAt ? `<tr><td>Expires</td><td>${link.expiresAt}</td></tr>` : '',
+	].filter(Boolean).join('\n\t\t\t');
+
+	return htmlPage({
+		title: 'Link Preview',
+		body: bodyContainer(`
+			<h1>Link <span class="highlight">Preview</span></h1>
+			<img src="${link.qrUrl}" alt="QR code" width="200" height="200" style="margin-bottom: 1rem;" />
+			<table style="width: 100%; text-align: left; border-collapse: collapse;">
+			${rows}
+			</table>
+			<style>
+				td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; }
+				td:first-child { font-weight: 600; white-space: nowrap; color: #555; }
+				td a { color: #05c46b; word-break: break-all; }
+			</style>
+		`),
+	});
+};
+
 export const homePageHtml = (docsPath: string) =>
 	htmlPage({
 		title: 'IsHere | Short Links',

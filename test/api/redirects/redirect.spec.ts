@@ -3,6 +3,53 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { kvCreateLink } from '../../../src/kv/kv-create-link';
 import { dbCreateLink } from '../../../src/db';
 
+describe('Preview routes', () => {
+	const testDate = new Date('2024-07-26T10:00:00.000Z');
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(testDate);
+	});
+
+	it('should return 200 with HTML preview for /:id/info', async () => {
+		const link = await kvCreateLink(env.KV, {
+			id: 'preview-test',
+			destinationUrl: 'https://example.com/destination',
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/preview-test/info');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toContain('text/html');
+		const html = await response.text();
+		expect(html).toContain('https://example.com/destination');
+	});
+
+	it('should return 200 with HTML preview for /:namespace/:shortPath/info', async () => {
+		const link = await kvCreateLink(env.KV, {
+			id: 'brand-preview',
+			destinationUrl: 'https://example.com/namespaced',
+			namespace: 'brand',
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/brand/preview/info');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toContain('text/html');
+		const html = await response.text();
+		expect(html).toContain('https://example.com/namespaced');
+	});
+
+	it('should return 404 for nonexistent link preview', async () => {
+		const response = await SELF.fetch('https://example.com/nonexistent/info');
+
+		expect(response.status).toBe(404);
+		expect(response.headers.get('content-type')).toContain('text/html');
+	});
+});
+
 describe('Redirect routes', () => {
 	const testDate = new Date('2024-07-26T10:00:00.000Z');
 

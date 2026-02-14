@@ -1,7 +1,7 @@
 import { getLinkWithD1Fallback } from '../../utils/get-link-with-d1-fallback';
 import { LinkKVSchema } from '../../types';
 import { LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../schema';
-import { notFoundHtml } from '../../html';
+import { notFoundHtml, linkPreviewHtml } from '../../html';
 import { createRoute, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { linkWithUrl } from '../../utils/link-with-url';
@@ -82,6 +82,41 @@ app.openapi(
 	}
 );
 
+const previewResponseDoc = {
+	200: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Link preview page.',
+	},
+	404: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Short link not found.',
+	},
+};
+
+app.openapi(
+	createRoute({
+		method: 'get',
+		path: '/:id/info',
+		tags: ['Link Preview'],
+		request: { params: LinkWithNRequestParamsSchema },
+		responses: previewResponseDoc,
+		summary: 'Preview short link',
+		description: 'Show a preview page with link metadata instead of redirecting.',
+	}),
+	async (c: Context<{ Bindings: Env }>) => {
+		const { id } = c.req.param();
+		const value = await getLinkWithD1Fallback(c.env, id);
+
+		if (value === null) {
+			c.status(404);
+			return c.html(notFoundHtml);
+		}
+
+		const link = linkWithUrl(c.req.url, value as LinkKVSchema);
+		return c.html(linkPreviewHtml(link));
+	}
+);
+
 app.openapi(
 	createRoute({
 		method: 'get',
@@ -138,6 +173,31 @@ app.openapi(
 		const { contentType, body } = await qrResponse(url, c.req.query());
 		c.header('Content-Type', contentType);
 		return c.body(body);
+	}
+);
+
+app.openapi(
+	createRoute({
+		method: 'get',
+		path: '/:namespace/:shortPath/info',
+		tags: ['Link Preview'],
+		request: { params: LinkWithNamespaceRequestParamsSchema },
+		responses: previewResponseDoc,
+		summary: 'Preview short link with namespace',
+		description: 'Show a preview page with link metadata instead of redirecting.',
+	}),
+	async (c: Context<{ Bindings: Env }>) => {
+		const { namespace, shortPath } = c.req.param();
+		const id = `${namespace}-${shortPath}`;
+		const value = await getLinkWithD1Fallback(c.env, id);
+
+		if (value === null) {
+			c.status(404);
+			return c.html(notFoundHtml);
+		}
+
+		const link = linkWithUrl(c.req.url, value as LinkKVSchema);
+		return c.html(linkPreviewHtml(link));
 	}
 );
 

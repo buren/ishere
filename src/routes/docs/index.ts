@@ -14,9 +14,10 @@ app.get(
 		tagsSorter: (a, b) => {
 			const customOrder: Record<string, number> = {
 				Redirects: 1,
-				API: 2,
-				QR: 3,
-				Slack: 4,
+				'Link Preview': 2,
+				API: 3,
+				QR: 4,
+				Slack: 5,
 			};
 
 			const orderA = customOrder[a.name];
