@@ -58,9 +58,6 @@ export const buildRequestDoc = ({
 
 export const buildSlackRequestDoc = ({ schema }: { schema: z.ZodType }) => ({
 	body: { content: { 'application/x-www-form-urlencoded': { schema } } },
-	query: z.object({
-		apiKey: z.string().describe('Pass API key as query param: `apiKey=yourapikey`.'),
-	}),
 });
 
 // Response data

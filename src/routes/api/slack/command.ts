@@ -4,7 +4,7 @@ import { handleSlackCommandAction } from '../../../actions';
 import { SlackCommandRequestSchema, SlackCommandResponseSchema } from '../../../schema';
 import { slackRespondWithMessage } from '../../../utils/slack-respond-with';
 import { SLACK_COMMAND_USAGE_MRKDWN } from '../../../utils/parse-slack-command';
-import timingSafeEqual from '../../../utils/timing-safe-equal';
+import slackSignatureVerifyMiddleware from '../../../middleware/slack-verify';
 import { createApp } from '../../app';
 
 const SUCCESS_STATUS = 200;
@@ -16,6 +16,7 @@ app.openapi(
 		method: 'post',
 		path: '/command',
 		tags: ['Slack'],
+		middleware: slackSignatureVerifyMiddleware,
 		request: buildSlackRequestDoc({ schema: SlackCommandRequestSchema }),
 		responses: {
 			...jsonResponseDoc(SUCCESS_STATUS, SlackCommandResponseSchema, 'Slack command handled correctly.'),
@@ -26,15 +27,9 @@ app.openapi(
 ${SLACK_COMMAND_USAGE_MRKDWN}`,
 	}),
 	async (c) => {
-		// NOTE: We get the api key from the query string because the slack slash command
-		// request does not include the API key in the header.
-		const { apiKey } = c.req.query();
-		if (!apiKey || !(await timingSafeEqual(apiKey, c.env.API_KEY))) {
-			return c.json(slackRespondWithMessage('Invalid API key. Use query param: apiKey=yourapikey'), SUCCESS_STATUS);
-		}
-
-		const formData = await c.req.formData();
-		const text = (formData.get('text') || '') as string;
+		const body = c.get('slackBody');
+		const params = new URLSearchParams(body);
+		const text = (params.get('text') || '') as string;
 
 		try {
 			const data = await handleSlackCommandAction({
