@@ -16,6 +16,7 @@ export type LinkKVSchema = {
 	expirationTtl?: number | null;
 	redirectStatusCode: number;
 	password?: string | null;
+	scheduledAt?: string | null;
 };
 
 export type LinkDbSchema = LinkKVSchema;

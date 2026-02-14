@@ -1,7 +1,7 @@
 import { getLinkWithD1Fallback } from '../../utils/get-link-with-d1-fallback';
 import { LinkKVSchema } from '../../types';
 import { LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../schema';
-import { notFoundHtml, linkPreviewHtml, passwordPromptHtml } from '../../html';
+import { notFoundHtml, linkPreviewHtml, passwordPromptHtml, scheduledNotActiveHtml } from '../../html';
 import { createRoute, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
 import { linkWithUrl } from '../../utils/link-with-url';
@@ -139,6 +139,10 @@ app.openapi(
 
 		const link = value as LinkKVSchema;
 
+		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
+			return c.html(scheduledNotActiveHtml(link.scheduledAt));
+		}
+
 		if (link.password) {
 			return c.html(passwordPromptHtml(`/${id}`));
 		}
@@ -161,6 +165,9 @@ app.post('/:id', async (c: Context<{ Bindings: Env }>) => {
 	const link = value as LinkKVSchema;
 
 	if (!link.password) {
+		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
+			return c.html(scheduledNotActiveHtml(link.scheduledAt));
+		}
 		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
 	}
@@ -170,6 +177,10 @@ app.post('/:id', async (c: Context<{ Bindings: Env }>) => {
 
 	if (typeof password !== 'string' || !(await verifyPassword(password, link.password))) {
 		return c.html(passwordPromptHtml(`/${id}`, 'Incorrect password.'));
+	}
+
+	if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
+		return c.html(scheduledNotActiveHtml(link.scheduledAt));
 	}
 
 	c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
@@ -256,6 +267,10 @@ app.openapi(
 
 		const link = value as LinkKVSchema;
 
+		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
+			return c.html(scheduledNotActiveHtml(link.scheduledAt));
+		}
+
 		if (link.password) {
 			return c.html(passwordPromptHtml(`/${namespace}/${shortPath}`));
 		}
@@ -279,6 +294,9 @@ app.post('/:namespace/:shortPath', async (c: Context<{ Bindings: Env }>) => {
 	const link = value as LinkKVSchema;
 
 	if (!link.password) {
+		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
+			return c.html(scheduledNotActiveHtml(link.scheduledAt));
+		}
 		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
 	}
@@ -288,6 +306,10 @@ app.post('/:namespace/:shortPath', async (c: Context<{ Bindings: Env }>) => {
 
 	if (typeof password !== 'string' || !(await verifyPassword(password, link.password))) {
 		return c.html(passwordPromptHtml(`/${namespace}/${shortPath}`, 'Incorrect password.'));
+	}
+
+	if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
+		return c.html(scheduledNotActiveHtml(link.scheduledAt));
 	}
 
 	c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));

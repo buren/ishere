@@ -5,7 +5,7 @@ type CreateLinkKVSchema = Omit<LinkKVSchema, 'createdAt' | 'updatedAt' | 'expire
 
 export const kvCreateLink = async (
 	kv: KVNamespace<string>,
-	{ id, destinationUrl, namespace, expirationTtl, redirectStatusCode, password }: CreateLinkKVSchema
+	{ id, destinationUrl, namespace, expirationTtl, redirectStatusCode, password, scheduledAt }: CreateLinkKVSchema
 ): Promise<LinkKVSchema> => {
 	const now = Date.now();
 	const createdAt = new Date(now).toISOString();
@@ -19,6 +19,7 @@ export const kvCreateLink = async (
 		expirationTtl: expirationTtl ?? null,
 		redirectStatusCode: redirectStatusCode ?? defaultRedirectStatusCode,
 		password: password ?? null,
+		scheduledAt: scheduledAt ?? null,
 	};
 	await kv.put(id, JSON.stringify(link), { expirationTtl: expirationTtl ?? undefined });
 	return link;

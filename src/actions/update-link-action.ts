@@ -1,6 +1,7 @@
 import StatusError from '../errors/status-error';
 import { messages } from './constants';
 import { Action } from '../types';
+
 import { UpdateLinkRequestBodySchema } from '../schema';
 import { linkWithUrl } from '../utils/link-with-url';
 import { getLinkWithD1Fallback } from '../utils/get-link-with-d1-fallback';
@@ -9,7 +10,7 @@ import { dbUpdateLink } from '../db';
 import { hashPassword } from '../utils/hash-password';
 
 export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string }> = async ({ data, url, env, ctx }) => {
-	const { id, destinationUrl, expirationTtl, redirectStatusCode, password } = data;
+	const { id, destinationUrl, expirationTtl, redirectStatusCode, password, scheduledAt } = data;
 
 	const currentLink = await getLinkWithD1Fallback(env, id, ctx);
 	if (!currentLink) {
@@ -33,6 +34,18 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 		updatedPassword = currentLink.password;
 	}
 
+	let updatedScheduledAt: string | null | undefined;
+	if (typeof scheduledAt === 'string') {
+		if (new Date(scheduledAt) <= new Date()) {
+			throw new StatusError(400, messages.scheduledAtInPast, 'scheduledAt', 'in_past');
+		}
+		updatedScheduledAt = scheduledAt;
+	} else if (scheduledAt === null) {
+		updatedScheduledAt = null;
+	} else {
+		updatedScheduledAt = currentLink.scheduledAt;
+	}
+
 	const updatedLink = {
 		...currentLink,
 		destinationUrl: destinationUrl ?? currentLink.destinationUrl,
@@ -41,6 +54,7 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 		updatedAt: new Date(now).toISOString(),
 		redirectStatusCode: redirectStatusCode ?? currentLink.redirectStatusCode,
 		password: updatedPassword,
+		scheduledAt: updatedScheduledAt,
 	};
 
 	await dbUpdateLink(env.D1, updatedLink);

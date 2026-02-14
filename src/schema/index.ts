@@ -92,6 +92,12 @@ export const CreateLinkRequestSchema = z.object({
 		.nullable()
 		.optional()
 		.describe('Password to protect the link. Visitors must enter this password before being redirected.'),
+	scheduledAt: z
+		.string()
+		.datetime()
+		.nullable()
+		.optional()
+		.describe('Go live date. The link will not redirect until this date (ISO 8601 datetime).'),
 });
 
 export type CreateLinkRequestBody = z.infer<typeof CreateLinkRequestSchema>;
@@ -117,6 +123,12 @@ export const UpdateLinkRequestSchema = z.object({
 		.nullable()
 		.optional()
 		.describe('Password to protect the link. Send null to remove password protection.'),
+	scheduledAt: z
+		.string()
+		.datetime()
+		.nullable()
+		.optional()
+		.describe('Go live date. Send null to remove scheduling (ISO 8601 datetime).'),
 });
 
 export type UpdateLinkRequestBodySchema = z.infer<typeof UpdateLinkRequestSchema>;
@@ -146,6 +158,7 @@ export const LinkResponseSchema = z.object({
 	expiresAt: z.string().datetime().nullable().optional().describe('Expires at timestamp.'),
 	redirectStatusCode: z.number().describe('HTTP status code for redirects (301 or 302).'),
 	passwordProtected: z.boolean().describe('Whether the link requires a password to access.'),
+	scheduledAt: z.string().datetime().nullable().optional().describe('Go live date (ISO 8601 datetime).'),
 });
 
 export const ListLinksByNamespaceQuerySchema = z.object({

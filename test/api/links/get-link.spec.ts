@@ -39,6 +39,7 @@ describe('GET /api/link/:id', () => {
 				updatedAt: testDateISO,
 				expiresAt: null,
 				redirectStatusCode: 302,
+				scheduledAt: null,
 			});
 			expect(data).toStrictEqual(expected);
 		});
@@ -70,6 +71,7 @@ describe('GET /api/link/:id', () => {
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
 				redirectStatusCode: 302,
+				scheduledAt: null,
 			});
 			expect(data).toStrictEqual(expected);
 		});

@@ -39,6 +39,7 @@ describe('POST /api/health', () => {
 				namespace: null,
 				expirationTtl: null,
 				redirectStatusCode: 302,
+				scheduledAt: null,
 			})
 		);
 

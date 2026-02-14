@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS links (
   updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	expiresAt TIMESTAMP,
 	redirectStatusCode INT NOT NULL DEFAULT 302,
-	password TEXT
+	password TEXT,
+	scheduledAt TIMESTAMP
 );

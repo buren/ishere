@@ -25,6 +25,7 @@ describe('GET /api/link/namespace/:namespace', () => {
 		updatedAt: testDateISO,
 		expiresAt: null,
 		redirectStatusCode: 302,
+		scheduledAt: null,
 	});
 
 	it('should return links for a namespace with multiple links', async () => {

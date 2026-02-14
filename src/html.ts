@@ -98,12 +98,23 @@ export const qrCodeHtml = ({ body }: QrCodeHtmlOptions) => `
 </body>
 </html>`;
 
+export const scheduledNotActiveHtml = (scheduledAt: string) =>
+	htmlPage({
+		title: 'Not Yet Available',
+		body: bodyContainer(`
+			<h1>Not Yet <span class="highlight">Available</span></h1>
+			<p>This link is scheduled to go live on:</p>
+			<p style="font-weight: 600; font-size: 1.1rem;">${scheduledAt}</p>
+		`),
+	});
+
 export const linkPreviewHtml = (link: import('./utils/link-with-url').LinkWithUrls) => {
 	const rows = [
 		`<tr><td>Destination</td><td><a href="${link.destinationUrl}">${link.destinationUrl}</a></td></tr>`,
 		`<tr><td>Short URL</td><td><a href="${link.url}">${link.url}</a></td></tr>`,
 		link.namespace ? `<tr><td>Namespace</td><td>${link.namespace}</td></tr>` : '',
 		link.passwordProtected ? `<tr><td>Password</td><td>Protected</td></tr>` : '',
+		link.scheduledAt ? `<tr><td>Scheduled</td><td>${link.scheduledAt}</td></tr>` : '',
 		`<tr><td>Redirect</td><td>${link.redirectStatusCode === 301 ? '301 Permanent' : '302 Temporary'}</td></tr>`,
 		`<tr><td>Created</td><td>${link.createdAt}</td></tr>`,
 		`<tr><td>Updated</td><td>${link.updatedAt}</td></tr>`,

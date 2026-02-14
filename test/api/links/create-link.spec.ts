@@ -43,6 +43,7 @@ describe('POST /api/link', () => {
 			expiresAt: null,
 			redirectStatusCode: 302,
 			passwordProtected: false,
+			scheduledAt: null,
 			url: 'https://example.com/customPath',
 			qrUrl: 'https://example.com/customPath/qr',
 		});
@@ -214,6 +215,36 @@ describe('POST /api/link', () => {
 		expect(response.status).toBe(201);
 		expect(data.passwordProtected).toBe(true);
 		expect((data as any).password).toBeUndefined();
+	});
+
+	it('should create link with future scheduledAt', async () => {
+		const scheduledAt = '2024-08-01T00:00:00.000Z';
+		const requestBody = { destinationUrl: 'https://example.com', shortPath: 'schedLink', scheduledAt };
+
+		const response = await SELF.fetch('https://example.com/api/link', {
+			method: 'POST',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+
+		const data = await response.json() as ResponseBody;
+		expect(response.status).toBe(201);
+		expect(data.scheduledAt).toBe(scheduledAt);
+	});
+
+	it('should return 400 for past scheduledAt', async () => {
+		const scheduledAt = '2024-07-25T00:00:00.000Z';
+		const requestBody = { destinationUrl: 'https://example.com', shortPath: 'pastSched', scheduledAt };
+
+		const response = await SELF.fetch('https://example.com/api/link', {
+			method: 'POST',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+
+		expect(response.status).toBe(400);
+		const data = (await response.json()) as any;
+		expect(data.error.message).toBe('Scheduled date must be in the future.');
 	});
 
 	it('should return error for invalid api key', async () => {

@@ -228,3 +228,99 @@ describe('Password-protected redirects', () => {
 		expect(postResponse.headers.get('location')).toBe('https://example.com/ns-dest');
 	});
 });
+
+describe('Scheduled link redirects', () => {
+	const testDate = new Date('2024-07-26T10:00:00.000Z');
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(testDate);
+	});
+
+	it('should show not yet available page before scheduled date', async () => {
+		const futureDate = '2024-08-01T00:00:00.000Z';
+		const link = await kvCreateLink(env.KV, {
+			id: 'sched-future',
+			destinationUrl: 'https://example.com/scheduled',
+			scheduledAt: futureDate,
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/sched-future', { redirect: 'manual' });
+
+		expect(response.status).toBe(200);
+		const html = await response.text();
+		expect(html).toContain('Not Yet');
+		expect(html).toContain(futureDate);
+	});
+
+	it('should redirect normally after scheduled date has passed', async () => {
+		const pastDate = '2024-07-25T00:00:00.000Z';
+		const link = await kvCreateLink(env.KV, {
+			id: 'sched-past',
+			destinationUrl: 'https://example.com/live',
+			scheduledAt: pastDate,
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/sched-past', { redirect: 'manual' });
+
+		expect(response.status).toBe(302);
+		expect(response.headers.get('location')).toBe('https://example.com/live');
+	});
+
+	it('should show not yet available before go-live even with password protection', async () => {
+		const futureDate = '2024-08-01T00:00:00.000Z';
+		const password = await hashPassword('secret');
+		const link = await kvCreateLink(env.KV, {
+			id: 'sched-pw',
+			destinationUrl: 'https://example.com/secret-scheduled',
+			scheduledAt: futureDate,
+			password,
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/sched-pw', { redirect: 'manual' });
+
+		expect(response.status).toBe(200);
+		const html = await response.text();
+		expect(html).toContain('Not Yet');
+	});
+
+	it('should show password form after go-live for password-protected scheduled link', async () => {
+		const pastDate = '2024-07-25T00:00:00.000Z';
+		const password = await hashPassword('secret');
+		const link = await kvCreateLink(env.KV, {
+			id: 'sched-pw-live',
+			destinationUrl: 'https://example.com/secret-live',
+			scheduledAt: pastDate,
+			password,
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/sched-pw-live', { redirect: 'manual' });
+
+		expect(response.status).toBe(200);
+		const html = await response.text();
+		expect(html).toContain('Password');
+		expect(html).toContain('form');
+	});
+
+	it('should show not yet available for namespaced scheduled link', async () => {
+		const futureDate = '2024-08-01T00:00:00.000Z';
+		const link = await kvCreateLink(env.KV, {
+			id: 'brand-sched',
+			destinationUrl: 'https://example.com/ns-scheduled',
+			namespace: 'brand',
+			scheduledAt: futureDate,
+		});
+		await dbCreateLink(env.D1, link);
+
+		const response = await SELF.fetch('https://example.com/brand/sched', { redirect: 'manual' });
+
+		expect(response.status).toBe(200);
+		const html = await response.text();
+		expect(html).toContain('Not Yet');
+		expect(html).toContain(futureDate);
+	});
+});
