@@ -123,7 +123,7 @@ curl https://your-domain/api/link/abc12/stats/day \
 | `DEFAULT_SHORT_PATH_LENGTH`| No       | Length of auto-generated short paths (default: `5`)      |
 | `MAX_SHORT_ID_RETRIES`     | No       | Max retries on ID collision (default: `5`)               |
 | `SLACK_BOT_TOKEN`          | No       | Slack Bot User OAuth Token (`xoxb-...`) for notifications |
-| `SLACK_CHANNEL_ID`         | No       | Slack channel to post link notifications to               |
+| `SLACK_CHANNEL_ID`         | No       | Slack channel ID (e.g. `C01AB2CDE3F`) for link-change notifications |
 | `SLACK_SIGNING_SECRET`     | No       | Slack signing secret for verifying interactive messages    |
 
 Set secrets locally in `.dev.vars` and via `wrangler secret put` for deployed environments.
@@ -165,13 +165,13 @@ Under **OAuth & Permissions** > **Bot Token Scopes**, add:
 
 Install the app to your workspace, then set the following secrets (via `wrangler secret put` or `.dev.vars` locally):
 
-| Secret                 | Where to find it                                                       |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `SLACK_SIGNING_SECRET` | **Basic Information** > Signing Secret                                 |
-| `SLACK_BOT_TOKEN`      | **OAuth & Permissions** > Bot User OAuth Token (`xoxb-...`)            |
-| `SLACK_CHANNEL_ID`     | Right-click a channel in Slack > **View channel details** > Channel ID |
+| Secret                 | Where to find it                                                    |
+| ---------------------- | ------------------------------------------------------------------- |
+| `SLACK_SIGNING_SECRET` | **Basic Information** > Signing Secret                              |
+| `SLACK_BOT_TOKEN`      | **OAuth & Permissions** > Bot User OAuth Token (`xoxb-...`)         |
+| `SLACK_CHANNEL_ID`     | Channel ID of the channel the bot should post notifications to      |
 
-`SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID` are optional — if unset, bot notifications are silently skipped. `SLACK_SIGNING_SECRET` is required for the interaction endpoint.
+`SLACK_SIGNING_SECRET` is required for the slash command and interaction endpoints. `SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID` are optional — if either is unset, bot notifications for link changes (created/updated/deleted) are silently skipped. To find a channel ID, right-click the channel in Slack > **View channel details** — the ID is at the bottom of the panel.
 
 Finally, invite the bot to your notification channel: `/invite @IsHere`
 
