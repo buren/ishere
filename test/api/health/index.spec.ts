@@ -4,6 +4,7 @@ import * as actions  from '../../../src/actions';
 import { LinkResponseSchema } from '../../../src/schema';
 import { z } from 'zod';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
+import StatusError from '../../../src/errors/status-error';
 
 type ResponseBody = z.infer<typeof LinkResponseSchema>;
 
@@ -44,7 +45,7 @@ describe('POST /api/health', () => {
 	});
 
 	it('should return 503 if service unavailable', async () => {
-		vi.spyOn(actions, 'healthCheckAction').mockRejectedValueOnce(new Error());
+		vi.spyOn(actions, 'healthCheckAction').mockRejectedValueOnce(new StatusError(503, 'Service unavailable'));
 
 		const url = 'https://example.com/api/health';
 		const response = await SELF.fetch(url, {

@@ -2,6 +2,7 @@ import { createExecutionContext, env, SELF } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { dbCreateLink } from '../../../src/db';
 import { linkWithUrl } from '../../../src/utils/link-with-url';
+import * as actions from '../../../src/actions';
 
 describe('GET /api/link/namespace/:namespace', () => {
 	const testDate = new Date('2024-07-26T10:00:00.000Z');
@@ -101,5 +102,19 @@ describe('GET /api/link/namespace/:namespace', () => {
 		expect(response.status).toBe(200);
 		const body = await response.json() as any;
 		expect(body.limit).toBe(100);
+	});
+
+	it('should return 500 if an unexpected error occurs', async () => {
+		vi.spyOn(actions, 'listLinksByNamespaceAction').mockRejectedValueOnce(
+			new Error('database connection failed')
+		);
+
+		const url = 'https://example.com/api/link/namespace/test-ns';
+		const response = await SELF.fetch(url, { method: 'GET' });
+
+		expect(response.status).toBe(500);
+		expect(await response.json()).toStrictEqual({
+			error: { message: 'Internal server error' },
+		});
 	});
 });

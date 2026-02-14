@@ -1,13 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
-import {
-	buildRequestDoc,
-	internalServerErrorResponseData,
-	jsonResponseDoc,
-	standardResponsesDoc,
-} from '../../../openapi';
+import { buildRequestDoc, jsonResponseDoc, standardResponsesDoc } from '../../../openapi';
 import { getLinkAction } from '../../../actions';
-import StatusError from '../../../errors/status-error';
-import statusErrorToJson from '../../../utils/status-error-to-json';
 import { LinkParamsSchema, LinkResponseSchema } from '../../../schema';
 import { createApp } from '../../app';
 
@@ -31,25 +24,14 @@ app.openapi(
 	async (c) => {
 		const { id } = c.req.param();
 
-		try {
-			const { data } = await getLinkAction({
-				url: c.req.url,
-				data: { id },
-				env: c.env,
-				ctx: c.executionCtx,
-			});
+		const { data } = await getLinkAction({
+			url: c.req.url,
+			data: { id },
+			env: c.env,
+			ctx: c.executionCtx,
+		});
 
-			return c.json(data, SUCCESS_STATUS);
-		} catch (error) {
-			console.error(error);
-
-			if (error instanceof StatusError) {
-				const { status, data } = statusErrorToJson(error);
-				return c.json(data, status);
-			}
-
-			return c.json(internalServerErrorResponseData(), 500);
-		}
+		return c.json(data, SUCCESS_STATUS);
 	}
 );
 

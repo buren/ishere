@@ -1,13 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
-import {
-	buildRequestDoc,
-	internalServerErrorResponseData,
-	jsonResponseDoc,
-	standardResponsesDoc,
-} from '../../../openapi';
+import { buildRequestDoc, jsonResponseDoc, standardResponsesDoc } from '../../../openapi';
 import { listLinksByNamespaceAction } from '../../../actions';
-import StatusError from '../../../errors/status-error';
-import statusErrorToJson from '../../../utils/status-error-to-json';
 import {
 	ListLinksByNamespaceParamsSchema,
 	ListLinksByNamespaceQuerySchema,
@@ -43,25 +36,14 @@ app.openapi(
 		const limit = Math.min(Math.max(parseInt(limitStr) || defaultListLimit, 1), maximumListLimit);
 		const offset = Math.max(parseInt(offsetStr) || 0, 0);
 
-		try {
-			const { data } = await listLinksByNamespaceAction({
-				url: c.req.url,
-				data: { namespace, limit, offset },
-				env: c.env,
-				ctx: c.executionCtx,
-			});
+		const { data } = await listLinksByNamespaceAction({
+			url: c.req.url,
+			data: { namespace, limit, offset },
+			env: c.env,
+			ctx: c.executionCtx,
+		});
 
-			return c.json(data, SUCCESS_STATUS);
-		} catch (error) {
-			console.error(error);
-
-			if (error instanceof StatusError) {
-				const { status, data } = statusErrorToJson(error);
-				return c.json(data, status);
-			}
-
-			return c.json(internalServerErrorResponseData(), 500);
-		}
+		return c.json(data, SUCCESS_STATUS);
 	}
 );
 

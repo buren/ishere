@@ -1,8 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { buildRequestDoc, internalServerErrorResponseData, jsonResponseDoc, standardResponsesDoc } from '../../../openapi';
+import { buildRequestDoc, jsonResponseDoc, standardResponsesDoc } from '../../../openapi';
 import { createLinkAction } from '../../../actions';
-import StatusError from '../../../errors/status-error';
-import statusErrorToJson from '../../../utils/status-error-to-json';
 import { CreateLinkRequestSchema, LinkResponseSchema } from '../../../schema';
 import apiKeyAuthMiddleware from '../../../middleware/auth';
 import { createApp } from '../../app';
@@ -42,25 +40,14 @@ _NOTE_: You can use \`/{namespace}-{path}\` just as well as \`/{namespace}/{path
 	async (c) => {
 		const json = c.req.valid('json');
 
-		try {
-			const { data } = await createLinkAction({
-				url: c.req.url,
-				data: json,
-				env: c.env,
-				ctx: c.executionCtx,
-			});
+		const { data } = await createLinkAction({
+			url: c.req.url,
+			data: json,
+			env: c.env,
+			ctx: c.executionCtx,
+		});
 
-			return c.json(data, SUCCESS_STATUS);
-		} catch (error) {
-			console.error(error);
-
-			if (error instanceof StatusError) {
-				const { status, data } = statusErrorToJson(error);
-				return c.json(data, status);
-			}
-
-			return c.json(internalServerErrorResponseData(), 500);
-		}
+		return c.json(data, SUCCESS_STATUS);
 	}
 );
 
