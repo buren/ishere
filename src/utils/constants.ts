@@ -15,6 +15,7 @@ export const minimumQrMargin = 0;
 export const maximumQrMargin = 100;
 export const defaultQrMargin = 16;
 export const maximumListLimit = 100;
+export const defaultRedirectStatusCode = 302;
 export const reservedPaths = [
 	// Active routes
 	'api',

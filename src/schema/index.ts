@@ -15,6 +15,7 @@ import {
 	minimumQrMargin,
 	minimumQrSize,
 	minimumShortPathLength,
+	defaultRedirectStatusCode,
 } from '../utils/constants';
 import { messages } from "../actions";
 
@@ -80,6 +81,11 @@ export const CreateLinkRequestSchema = z.object({
 		.describe(
 			`Expiration time in seconds (min ${minimumExpirationTtl} seconds). Omit for no expiration.`
 		),
+	redirectStatusCode: z
+		.union([z.literal(301), z.literal(302)])
+		.optional()
+		.default(defaultRedirectStatusCode)
+		.describe('HTTP status code for redirects (301 permanent, 302 temporary).'),
 });
 
 export type CreateLinkRequestBody = z.infer<typeof CreateLinkRequestSchema>;
@@ -95,6 +101,10 @@ export const UpdateLinkRequestSchema = z.object({
 		.describe(
 			`Expiration time in seconds (min ${minimumExpirationTtl} seconds). Omit for no expiration.`
 		),
+	redirectStatusCode: z
+		.union([z.literal(301), z.literal(302)])
+		.optional()
+		.describe('HTTP status code for redirects (301 permanent, 302 temporary).'),
 });
 
 export type UpdateLinkRequestBodySchema = z.infer<typeof UpdateLinkRequestSchema>;
@@ -122,6 +132,7 @@ export const LinkResponseSchema = z.object({
 	createdAt: z.string().datetime().describe('Creation timestamp.'),
 	updatedAt: z.string().datetime().describe('Update timestamp.'),
 	expiresAt: z.string().datetime().nullable().optional().describe('Expires at timestamp.'),
+	redirectStatusCode: z.number().describe('HTTP status code for redirects (301 or 302).'),
 });
 
 export const ListLinksByNamespaceQuerySchema = z.object({

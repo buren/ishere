@@ -7,7 +7,7 @@ type UpdateLinkKVSchema = z.infer<typeof UpdateLinkRequestSchema>;
 export const kvUpdateLink = async (
 	kv: KVNamespace<string>,
 	currentLink: LinkKVSchema,
-	{ destinationUrl, expirationTtl }: UpdateLinkKVSchema
+	{ destinationUrl, expirationTtl, redirectStatusCode }: UpdateLinkKVSchema
 ) => {
 	const now = Date.now();
 	const updatedTtl = expirationTtl ? expirationTtl : currentLink.expirationTtl;
@@ -19,6 +19,7 @@ export const kvUpdateLink = async (
 		expirationTtl: updatedTtl,
 		expiresAt,
 		updatedAt: new Date(now).toISOString(),
+		redirectStatusCode: redirectStatusCode ?? currentLink.redirectStatusCode,
 	};
 	await kv.put(currentLink.id, JSON.stringify(updatedLink), {
 		expirationTtl: updatedTtl ?? undefined,

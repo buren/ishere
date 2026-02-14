@@ -27,6 +27,7 @@ describe('KV layer', () => {
 			expect(link.namespace).toBeNull();
 			expect(link.expirationTtl).toBeNull();
 			expect(link.expiresAt).toBeNull();
+			expect(link.redirectStatusCode).toBe(302);
 		});
 
 		it('should compute expiresAt from expirationTtl', async () => {

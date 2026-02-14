@@ -41,6 +41,7 @@ describe('POST /api/link', () => {
 			createdAt: testDateISO,
 			updatedAt: testDateISO,
 			expiresAt: null,
+			redirectStatusCode: 302,
 			url: 'https://example.com/customPath',
 			qrUrl: 'https://example.com/customPath/qr',
 		});
@@ -107,6 +108,7 @@ describe('POST /api/link', () => {
 			createdAt: testDateISO,
 			updatedAt: testDateISO,
 			expiresAt: null,
+			redirectStatusCode: 302,
 		});
 
 		vi.spyOn(utils, 'generateShortId')
@@ -167,6 +169,34 @@ describe('POST /api/link', () => {
 
 		expect(data.expirationTtl).toBe(expirationTtl);
 		expect(data.expiresAt).toBe(expectedExpiresAt);
+		expect(response.status).toBe(201);
+	});
+
+	it('should create link with redirectStatusCode 301', async () => {
+		const requestBody = { destinationUrl: 'https://example.com', shortPath: 'permanent', redirectStatusCode: 301 };
+
+		const response = await SELF.fetch('https://example.com/api/link', {
+			method: 'POST',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+
+		const data = await response.json() as ResponseBody;
+		expect(data.redirectStatusCode).toBe(301);
+		expect(response.status).toBe(201);
+	});
+
+	it('should default redirectStatusCode to 302', async () => {
+		const requestBody = { destinationUrl: 'https://example.com', shortPath: 'tempRedirect' };
+
+		const response = await SELF.fetch('https://example.com/api/link', {
+			method: 'POST',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+
+		const data = await response.json() as ResponseBody;
+		expect(data.redirectStatusCode).toBe(302);
 		expect(response.status).toBe(201);
 	});
 

@@ -38,6 +38,7 @@ describe('GET /api/link/:id', () => {
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
 				expiresAt: null,
+				redirectStatusCode: 302,
 			});
 			expect(data).toStrictEqual(expected);
 		});
@@ -51,6 +52,7 @@ describe('GET /api/link/:id', () => {
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
 				expiresAt: null,
+				redirectStatusCode: 302,
 			};
 			await dbCreateLink(env.D1, linkData);
 
@@ -67,6 +69,7 @@ describe('GET /api/link/:id', () => {
 				expiresAt: null,
 				createdAt: testDateISO,
 				updatedAt: testDateISO,
+				redirectStatusCode: 302,
 			});
 			expect(data).toStrictEqual(expected);
 		});

@@ -86,6 +86,31 @@ describe('PATCH /api/link/:id', () => {
 		expect(dbLink?.expirationTtl).toBe(expirationTtl);
 	});
 
+	it('should update redirectStatusCode from 302 to 301', async () => {
+		const linkId = 'redirect-update';
+		const link = await kvCreateLink(env.KV, { id: linkId, destinationUrl: 'https://example.com' });
+		await dbCreateLink(env.D1, link);
+
+		const updatedAt = new Date('2025-05-04T23:00:00.000Z');
+		vi.setSystemTime(updatedAt);
+
+		const requestBody = { redirectStatusCode: 301 };
+		const url = `https://example.com/api/link/${linkId}`;
+		const response = await SELF.fetch(url, {
+			method: 'PATCH',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+		});
+		const data = (await response.json()) as ResponseBody;
+
+		expect(response.status).toBe(202);
+		expect(data.redirectStatusCode).toBe(301);
+
+		// Verify D1 is updated
+		const dbLink = await dbGetLink(env.D1, { id: linkId });
+		expect(dbLink?.redirectStatusCode).toBe(301);
+	});
+
 	it('should should return 400 on invalid request body', async () => {
 		const requestBody = { destinationUrl: '' };
 		const response = await SELF.fetch('https://example.com/api/link/nonexistent-link', {

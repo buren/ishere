@@ -8,7 +8,7 @@ import { notifySlackLinkChange } from './notify-slack-action';
 import { dbUpdateLink } from '../db';
 
 export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string }> = async ({ data, url, env, ctx }) => {
-	const { id, destinationUrl, expirationTtl } = data;
+	const { id, destinationUrl, expirationTtl, redirectStatusCode } = data;
 
 	const currentLink = await getLinkWithD1Fallback(env, id, ctx);
 	if (!currentLink) {
@@ -29,6 +29,7 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 		expirationTtl: updatedTtl,
 		expiresAt,
 		updatedAt: new Date(now).toISOString(),
+		redirectStatusCode: redirectStatusCode ?? currentLink.redirectStatusCode,
 	};
 
 	await dbUpdateLink(env.D1, updatedLink);

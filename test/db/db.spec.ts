@@ -10,6 +10,7 @@ const makeLink = (overrides: Partial<LinkKVSchema> & { id: string }): LinkKVSche
 	createdAt: '2024-07-26T10:00:00.000Z',
 	updatedAt: '2024-07-26T10:00:00.000Z',
 	expiresAt: null,
+	redirectStatusCode: 302,
 	...overrides,
 });
 

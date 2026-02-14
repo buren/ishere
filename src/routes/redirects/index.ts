@@ -8,7 +8,7 @@ import { linkWithUrl } from '../../utils/link-with-url';
 import qrResponse from '../../utils/qr-response';
 import { notFoundQrResponse } from '../../utils/not-found-qr-response';
 import trackLinkRedirect from '../../analytics/track-link-redirect';
-import { reservedPaths } from '../../utils/constants';
+import { defaultRedirectStatusCode, reservedPaths } from '../../utils/constants';
 import { createApp } from '../app';
 
 // Link shortening routes
@@ -36,9 +36,13 @@ const qrResponseDoc = {
 };
 
 const redirectResponseDoc = {
+	301: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Permanent redirect to destination URL.',
+	},
 	302: {
 		content: { 'text/html': { schema: z.string() } },
-		description: 'Redirects link',
+		description: 'Temporary redirect to destination URL.',
 	},
 	404: {
 		content: { 'text/html': { schema: z.string() } },
@@ -97,10 +101,10 @@ app.openapi(
 			return c.render(notFoundHtml);
 		}
 
-		const { destinationUrl } = value as LinkKVSchema;
+		const link = value as LinkKVSchema;
 		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 
-		return c.redirect(destinationUrl, 302);
+		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
 	}
 );
 
@@ -157,10 +161,10 @@ app.openapi(
 			return c.render(notFoundHtml);
 		}
 
-		const { destinationUrl } = value as LinkKVSchema;
+		const link = value as LinkKVSchema;
 		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
 
-		return c.redirect(destinationUrl, 302);
+		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
 	}
 );
 
