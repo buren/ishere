@@ -17,6 +17,7 @@ export const notifySlackLinkChange = async ({
 	env,
 }: NotifySlackLinkChangeParams): Promise<void> => {
 	if (!env.SLACK_BOT_TOKEN || !env.SLACK_CHANNEL_ID) {
+		console.log('Slack notification skipped: SLACK_BOT_TOKEN or SLACK_CHANNEL_ID is not defined');
 		return;
 	}
 
