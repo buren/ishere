@@ -6,6 +6,8 @@ export * from './get-link-stats-action';
 export * from './list-links-by-namespace-action';
 export * from './handle-slack-command-action';
 export * from './handle-slack-interaction-action';
+export * from './handle-slack-shortcut-action';
+export * from './handle-slack-view-submission-action';
 export * from './health-check-action';
 export * from './notify-slack-action';
 export * from './update-link-action';

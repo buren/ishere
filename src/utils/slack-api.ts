@@ -32,6 +32,32 @@ type SlackRespondToUrlParams = {
 	replace_original?: boolean;
 };
 
+type SlackViewsOpenParams = {
+	trigger_id: string;
+	view: Record<string, unknown>;
+};
+
+type SlackViewsOpenResponse = {
+	ok: boolean;
+	error?: string;
+};
+
+export const slackViewsOpen = async (
+	token: string,
+	{ trigger_id, view }: SlackViewsOpenParams
+): Promise<SlackViewsOpenResponse> => {
+	const response = await fetch('https://slack.com/api/views.open', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ trigger_id, view }),
+	});
+
+	return response.json() as Promise<SlackViewsOpenResponse>;
+};
+
 export const slackRespondToUrl = async (
 	responseUrl: string,
 	{ text, blocks, replace_original }: SlackRespondToUrlParams

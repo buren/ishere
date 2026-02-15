@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { slackPostMessage, slackRespondToUrl } from '../../src/utils/slack-api';
+import { slackPostMessage, slackRespondToUrl, slackViewsOpen } from '../../src/utils/slack-api';
 
 const originalFetch = globalThis.fetch;
 
@@ -79,5 +79,35 @@ describe('slackRespondToUrl', () => {
 		});
 
 		expect(result).toEqual({ ok: true });
+	});
+});
+
+describe('slackViewsOpen', () => {
+	afterEach(() => {
+		globalThis.fetch = originalFetch;
+	});
+
+	it('should call views.open with correct token, trigger_id, and view', async () => {
+		const mockResponse = { ok: true };
+		globalThis.fetch = vi.fn().mockResolvedValue({
+			json: () => Promise.resolve(mockResponse),
+		});
+
+		const view = { type: 'modal', title: { type: 'plain_text', text: 'Test' } };
+		const result = await slackViewsOpen('xoxb-test-token', {
+			trigger_id: 'trigger-abc',
+			view,
+		});
+
+		expect(globalThis.fetch).toHaveBeenCalledWith('https://slack.com/api/views.open', {
+			method: 'POST',
+			headers: {
+				Authorization: 'Bearer xoxb-test-token',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ trigger_id: 'trigger-abc', view }),
+		});
+
+		expect(result).toEqual(mockResponse);
 	});
 });

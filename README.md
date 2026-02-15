@@ -158,11 +158,22 @@ https://<your-worker>/api/slack/interact
 
 This powers the interactive buttons (View Stats, View Details, etc.) that appear in bot notification messages.
 
+Also under **Interactivity & Shortcuts**, add two **Global Shortcuts**:
+
+| Name              | Callback ID    |
+| ----------------- | -------------- |
+| Create short link | `create_link`  |
+| Look up link      | `look_up_link` |
+
+These let users create and look up links from anywhere in Slack via the lightning bolt (shortcuts) menu.
+
 ### 4. Bot Token Scopes
 
 Under **OAuth & Permissions** > **Bot Token Scopes**, add:
 
 - `chat:write` — for posting link-change notifications to a channel
+- `chat:write.public` — for posting to channels the bot hasn't been invited to
+- `commands` — for slash commands and global shortcuts
 
 ### 5. Install & Set Secrets
 
