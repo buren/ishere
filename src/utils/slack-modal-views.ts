@@ -39,6 +39,37 @@ export const createLinkModalView = () => ({
 			},
 			label: { type: 'plain_text', text: 'Short path' },
 		},
+		{
+			type: 'input',
+			block_id: 'password_block',
+			optional: true,
+			element: {
+				type: 'plain_text_input',
+				action_id: 'password',
+				placeholder: { type: 'plain_text', text: 'Optional password' },
+			},
+			label: { type: 'plain_text', text: 'Password' },
+		},
+		{
+			type: 'input',
+			block_id: 'expires_at_block',
+			optional: true,
+			element: {
+				type: 'datetimepicker',
+				action_id: 'expires_at',
+			},
+			label: { type: 'plain_text', text: 'Expires at' },
+		},
+		{
+			type: 'input',
+			block_id: 'scheduled_at_block',
+			optional: true,
+			element: {
+				type: 'datetimepicker',
+				action_id: 'scheduled_at',
+			},
+			label: { type: 'plain_text', text: 'Scheduled at' },
+		},
 	],
 });
 
@@ -62,12 +93,17 @@ export const lookUpLinkModalView = () => ({
 	],
 });
 
-const linkDetailLines = (link: LinkWithUrls) => [
-	`*Short URL:* ${link.url}`,
-	`*Destination:* ${link.destinationUrl}`,
-	`*QR URL:* ${link.qrUrl}`,
-	`*Namespace:* ${link.namespace ?? 'none'}`,
-];
+const linkDetailLines = (link: LinkWithUrls) => {
+	const lines = [
+		`*Short URL:* ${link.url}`,
+		`*Destination:* ${link.destinationUrl}`,
+		`*QR URL:* ${link.qrUrl}`,
+		`*Namespace:* ${link.namespace ?? 'none'}`,
+	];
+	if (link.passwordProtected) lines.push('*Password protected:* yes');
+	if (link.scheduledAt) lines.push(`*Scheduled at:* ${link.scheduledAt}`);
+	return lines;
+};
 
 export const createLinkResultModalView = (link: LinkWithUrls) => ({
 	type: 'modal' as const,

@@ -29,18 +29,37 @@ describe('createLinkModalView', () => {
 		expect(view.callback_id).toBe('create_link');
 	});
 
-	it('should have destination URL, namespace, and short path inputs', () => {
+	it('should have all input blocks', () => {
 		const view = createLinkModalView();
 		const blockIds = view.blocks.map((b) => b.block_id);
-		expect(blockIds).toEqual(['destination_url_block', 'namespace_block', 'short_path_block']);
+		expect(blockIds).toEqual([
+			'destination_url_block',
+			'namespace_block',
+			'short_path_block',
+			'password_block',
+			'expires_at_block',
+			'scheduled_at_block',
+		]);
 	});
 
-	it('should have namespace and short path as optional', () => {
+	it('should have optional fields marked as optional', () => {
 		const view = createLinkModalView();
-		const namespaceBlock = view.blocks.find((b) => b.block_id === 'namespace_block');
-		const shortPathBlock = view.blocks.find((b) => b.block_id === 'short_path_block');
-		expect(namespaceBlock!.optional).toBe(true);
-		expect(shortPathBlock!.optional).toBe(true);
+		const optionalBlockIds = view.blocks.filter((b) => b.optional).map((b) => b.block_id);
+		expect(optionalBlockIds).toEqual([
+			'namespace_block',
+			'short_path_block',
+			'password_block',
+			'expires_at_block',
+			'scheduled_at_block',
+		]);
+	});
+
+	it('should use datetimepicker for expires_at and scheduled_at', () => {
+		const view = createLinkModalView();
+		const expiresBlock = view.blocks.find((b) => b.block_id === 'expires_at_block');
+		const scheduledBlock = view.blocks.find((b) => b.block_id === 'scheduled_at_block');
+		expect(expiresBlock!.element.type).toBe('datetimepicker');
+		expect(scheduledBlock!.element.type).toBe('datetimepicker');
 	});
 
 	it('should use url_text_input for destination URL', () => {
@@ -94,6 +113,27 @@ describe('createLinkResultModalView', () => {
 		const view = createLinkResultModalView(link);
 		const text = view.blocks[0].text.text;
 		expect(text).toContain('*Namespace:* my-brand');
+	});
+
+	it('should show password protected when true', () => {
+		const link = makeLink({ passwordProtected: true });
+		const view = createLinkResultModalView(link);
+		const text = view.blocks[0].text.text;
+		expect(text).toContain('*Password protected:* yes');
+	});
+
+	it('should not show password protected when false', () => {
+		const link = makeLink({ passwordProtected: false });
+		const view = createLinkResultModalView(link);
+		const text = view.blocks[0].text.text;
+		expect(text).not.toContain('Password protected');
+	});
+
+	it('should show scheduled at when present', () => {
+		const link = makeLink({ scheduledAt: '2025-06-01T12:00:00.000Z' });
+		const view = createLinkResultModalView(link);
+		const text = view.blocks[0].text.text;
+		expect(text).toContain('*Scheduled at:* 2025-06-01T12:00:00.000Z');
 	});
 });
 

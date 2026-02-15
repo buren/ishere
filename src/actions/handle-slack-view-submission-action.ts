@@ -9,7 +9,7 @@ type SlackViewSubmissionPayload = {
 	view: {
 		callback_id: string;
 		state: {
-			values: Record<string, Record<string, { type: string; value: string | null }>>;
+			values: Record<string, Record<string, { type: string; value: string | null; selected_date_time?: number | null }>>;
 		};
 	};
 };
@@ -55,6 +55,12 @@ const handleCreateLink = async (
 	const destinationUrl = values.destination_url_block.destination_url.value!;
 	const namespace = values.namespace_block.namespace.value || null;
 	const shortPath = values.short_path_block.short_path.value || null;
+	const password = values.password_block.password.value || null;
+	const expiresAtTs = values.expires_at_block.expires_at.selected_date_time as number | null;
+	const scheduledAtTs = values.scheduled_at_block.scheduled_at.selected_date_time as number | null;
+
+	const expirationTtl = expiresAtTs ? Math.floor(expiresAtTs - Date.now() / 1000) : null;
+	const scheduledAt = scheduledAtTs ? new Date(scheduledAtTs * 1000).toISOString() : null;
 
 	try {
 		const { data: link } = await createLinkAction({
@@ -63,6 +69,9 @@ const handleCreateLink = async (
 				destinationUrl,
 				namespace,
 				shortPath,
+				password,
+				expirationTtl,
+				scheduledAt,
 				redirectStatusCode: 302,
 			},
 			env,
@@ -71,10 +80,15 @@ const handleCreateLink = async (
 
 		return { response_action: 'update', view: createLinkResultModalView(link) };
 	} catch (error) {
-		if (error instanceof StatusError && error.path === 'id') {
+		if (error instanceof StatusError && error.path) {
+			const blockMap: Record<string, string> = {
+				id: 'short_path_block',
+				scheduledAt: 'scheduled_at_block',
+			};
+			const block = blockMap[error.path] ?? 'destination_url_block';
 			return {
 				response_action: 'errors',
-				errors: { short_path_block: error.message },
+				errors: { [block]: error.message },
 			};
 		}
 		return {
