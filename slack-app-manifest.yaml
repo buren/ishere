@@ -1,0 +1,41 @@
+display_information:
+  name: IsHere
+  description: Create, manage, and look up short links
+  background_color: "#2c2d30"
+
+features:
+  bot_user:
+    display_name: IsHere
+    always_online: true
+  shortcuts:
+    - name: Create short link
+      type: global
+      callback_id: create_link
+      description: Create a new short link
+    - name: Look up link
+      type: global
+      callback_id: look_up_link
+      description: Look up an existing short link by ID
+  slash_commands:
+    - command: /ishere
+      # Replace <your-worker> and <your-API_KEY> with your actual values
+      url: https://<your-worker>/api/slack/command
+      description: Create, look up, and manage short links
+      usage_hint: "[help | create <url> | get <id> | stats <id>]"
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.public
+      - commands
+
+settings:
+  interactivity:
+    is_enabled: true
+    # Replace <your-worker> with your actual worker URL
+    request_url: https://<your-worker>/api/slack/interact
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

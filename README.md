@@ -133,22 +133,30 @@ Set secrets locally in `.dev.vars` and via `wrangler secret put` for deployed en
 
 ## Slack App Setup
 
-The Slack integration lets you create, look up, and manage short links via a slash command, with optional bot notifications when links are created or updated.
+The Slack integration lets you create, look up, and manage short links via a slash command and global shortcuts, with optional bot notifications when links are created or updated.
 
 ### 1. Create a Slack App
 
-Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App** > **From scratch**. Name it (e.g. "IsHere") and select your workspace.
+Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App** > **From an app manifest**. Select your workspace, then paste the contents of [`slack-app-manifest.yaml`](slack-app-manifest.yaml). Before creating, replace the two placeholder URLs with your actual worker URL and API key:
 
-### 2. Slash Command
+- `https://<your-worker>/api/slack/command`
+- `https://<your-worker>/api/slack/interact`
+
+This configures the slash command, interactivity, global shortcuts, and bot scopes in one step.
+
+<details>
+<summary>Manual setup (without manifest)</summary>
+
+#### Slash Command
 
 Under **Slash Commands** > **Create New Command**:
 
 - **Command:** `/ishere`
-- **Request URL:** `https://<your-worker>/api/slack/command?apiKey=<your-API_KEY>`
+- **Request URL:** `https://<your-worker>/api/slack/command`
 
 The API key is passed as a query parameter because Slack doesn't send custom auth headers with slash commands.
 
-### 3. Interactivity
+#### Interactivity & Shortcuts
 
 Under **Interactivity & Shortcuts**, toggle **Interactivity** on and set the **Request URL** to:
 
@@ -156,18 +164,14 @@ Under **Interactivity & Shortcuts**, toggle **Interactivity** on and set the **R
 https://<your-worker>/api/slack/interact
 ```
 
-This powers the interactive buttons (View Stats, View Details, etc.) that appear in bot notification messages.
-
-Also under **Interactivity & Shortcuts**, add two **Global Shortcuts**:
+Also add two **Global Shortcuts**:
 
 | Name              | Callback ID    |
 | ----------------- | -------------- |
 | Create short link | `create_link`  |
 | Look up link      | `look_up_link` |
 
-These let users create and look up links from anywhere in Slack via the lightning bolt (shortcuts) menu.
-
-### 4. Bot Token Scopes
+#### Bot Token Scopes
 
 Under **OAuth & Permissions** > **Bot Token Scopes**, add:
 
@@ -175,7 +179,9 @@ Under **OAuth & Permissions** > **Bot Token Scopes**, add:
 - `chat:write.public` — for posting to channels the bot hasn't been invited to
 - `commands` — for slash commands and global shortcuts
 
-### 5. Install & Set Secrets
+</details>
+
+### 2. Install & Set Secrets
 
 Install the app to your workspace, then set the following secrets (via `wrangler secret put` or `.dev.vars` locally):
 
