@@ -25,6 +25,7 @@ describe('handleSlackInteractionAction', () => {
 
 	it('should handle edit_destination by posting usage instructions', async () => {
 		globalThis.fetch = vi.fn().mockResolvedValue({
+			ok: true,
 			json: () => Promise.resolve({ ok: true }),
 		});
 

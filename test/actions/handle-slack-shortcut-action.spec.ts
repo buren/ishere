@@ -20,6 +20,7 @@ describe('handleSlackShortcutAction', () => {
 
 	it('should call views.open with create_link modal for create_link shortcut', async () => {
 		globalThis.fetch = vi.fn().mockResolvedValue({
+			ok: true,
 			json: () => Promise.resolve({ ok: true }),
 		});
 
@@ -40,6 +41,7 @@ describe('handleSlackShortcutAction', () => {
 
 	it('should call views.open with look_up_link modal for look_up_link shortcut', async () => {
 		globalThis.fetch = vi.fn().mockResolvedValue({
+			ok: true,
 			json: () => Promise.resolve({ ok: true }),
 		});
 

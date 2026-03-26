@@ -42,10 +42,14 @@ export const handleSlackInteractionAction = async ({
 		}
 	} catch (error) {
 		console.error('Error handling Slack interaction:', error);
-		await slackRespondToUrl(responseUrl, {
-			...slackRespondWithMessage('Sorry, something went wrong.'),
-			replace_original: false,
-		});
+		try {
+			await slackRespondToUrl(responseUrl, {
+				...slackRespondWithMessage('Sorry, something went wrong.'),
+				replace_original: false,
+			});
+		} catch {
+			// Best-effort error response — if Slack is unreachable, nothing more we can do
+		}
 	}
 };
 

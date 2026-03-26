@@ -10,22 +10,6 @@ type SlackPostMessageResponse = {
 	ts?: string;
 };
 
-export const slackPostMessage = async (
-	token: string,
-	{ channel, text, blocks }: SlackPostMessageParams
-): Promise<SlackPostMessageResponse> => {
-	const response = await fetch('https://slack.com/api/chat.postMessage', {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ channel, text, blocks }),
-	});
-
-	return response.json() as Promise<SlackPostMessageResponse>;
-};
-
 type SlackRespondToUrlParams = {
 	text?: string;
 	blocks?: unknown[];
@@ -42,6 +26,36 @@ type SlackViewsOpenResponse = {
 	error?: string;
 };
 
+const assertSlackResponse = async <T extends { ok: boolean; error?: string }>(
+	response: Response,
+	context: string
+): Promise<T> => {
+	if (!response.ok) {
+		throw new Error(`Slack API ${context} HTTP error: ${response.status}`);
+	}
+	const data = (await response.json()) as T;
+	if (!data.ok) {
+		throw new Error(`Slack API ${context} error: ${data.error ?? 'unknown'}`);
+	}
+	return data;
+};
+
+export const slackPostMessage = async (
+	token: string,
+	{ channel, text, blocks }: SlackPostMessageParams
+): Promise<SlackPostMessageResponse> => {
+	const response = await fetch('https://slack.com/api/chat.postMessage', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ channel, text, blocks }),
+	});
+
+	return assertSlackResponse<SlackPostMessageResponse>(response, 'chat.postMessage');
+};
+
 export const slackViewsOpen = async (
 	token: string,
 	{ trigger_id, view }: SlackViewsOpenParams
@@ -55,7 +69,7 @@ export const slackViewsOpen = async (
 		body: JSON.stringify({ trigger_id, view }),
 	});
 
-	return response.json() as Promise<SlackViewsOpenResponse>;
+	return assertSlackResponse<SlackViewsOpenResponse>(response, 'views.open');
 };
 
 export const slackRespondToUrl = async (
@@ -68,5 +82,5 @@ export const slackRespondToUrl = async (
 		body: JSON.stringify({ text, blocks, replace_original }),
 	});
 
-	return response.json() as Promise<{ ok: boolean }>;
+	return assertSlackResponse<{ ok: boolean; error?: string }>(response, 'response_url');
 };
