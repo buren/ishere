@@ -46,6 +46,10 @@ export const linkRedirectsAnalytics = async (
 		throw new Error('Invalid groupBySeconds, must be a positive number');
 	}
 
+	// SECURITY: The Analytics Engine SQL API does not support parameterized queries,
+	// so `id` is interpolated directly into the query string. The isValidPathPattern()
+	// guard above ensures `id` matches only ^[\w-]+$ (alphanumeric, underscore, hyphen)
+	// which prevents SQL injection. Do not remove or loosen that validation.
 	const isBotFilter = excludeBotTraffic ? ` AND ${redirectsTable.isBot} != 'true'` : '';
 	const query = `
 		SELECT

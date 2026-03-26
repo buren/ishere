@@ -13,7 +13,6 @@ export const getLinkAction: Action<{ id: string }, LinkWithUrls> = async ({ data
 	}
 
 	return {
-		status: 200,
 		data: linkWithUrl(url, value),
 	}
 };

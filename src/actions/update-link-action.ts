@@ -71,7 +71,6 @@ export const updateLinkAction: Action<UpdateLinkRequestBodySchema & { id: string
 	ctx.waitUntil(notifyWebhook({ event: 'link.updated', link: result, env }));
 
 	return {
-		status: 202,
 		data: result,
 	};
 };

@@ -13,6 +13,7 @@ const SUCCESS_STATUS = 200;
 
 const app = createApp();
 
+// Intentionally unauthenticated — read-only endpoint, consistent with GET /api/link/:id
 app.openapi(
 	createRoute({
 		method: 'get',

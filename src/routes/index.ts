@@ -7,17 +7,11 @@ import healthRoutes from './api/health';
 import redirectRoutes from './redirects';
 import { Context } from 'hono';
 import { notFoundResponseData } from '../openapi';
-import { homePageHtml } from '../html';
 import { createApp } from './app';
 
 const app = createApp();
 app.use('*', logger());
 app.use('*', cors());
-
-// Root route
-// app.use('/', async (c: Context<{ Bindings: Env }>) => {
-// 	return c.render(homePageHtml("/docs"));
-// });
 
 // API routes
 app.route('/api/link', linkRoutes);

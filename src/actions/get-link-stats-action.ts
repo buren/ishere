@@ -32,7 +32,6 @@ export const getLinkStatsAction: Action<GetLinkStatsBody, RedirectStats> = async
 		const groupBySeconds = durationInSeconds[groupBy as LinkAnalyticsGroupByOption];
 		const analytics = await linkRedirectsAnalytics(env, { id, groupBySeconds });
 		return {
-			status: 200,
 			data: analytics,
 		};
 	} catch(error) {
