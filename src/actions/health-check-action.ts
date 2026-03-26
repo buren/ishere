@@ -1,5 +1,5 @@
 import { HEALTH_KEY } from '../utils/constants';
-import { Action, LinkKVSchema } from '../types';
+import { Action } from '../types';
 import { linkWithUrl, LinkWithUrls } from '../utils/link-with-url';
 import { messages } from './constants';
 import StatusError from '../errors/status-error';
@@ -19,8 +19,7 @@ export const healthCheckAction: Action<{}, LinkWithUrls> = async ({ url, env }) 
 			throw new StatusError(503, messages.serviceUnavailable);
 		}
 
-		const kvLink = value as LinkKVSchema;
-		return { data: linkWithUrl(url, kvLink) };
+		return { data: linkWithUrl(url, value) };
 	} catch (error) {
 		console.error('Health check failed');
 		throw new StatusError(503, messages.serviceUnavailable);

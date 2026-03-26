@@ -9,7 +9,7 @@ export const getLinkWithD1Fallback = async (
 ): Promise<LinkKVSchema | null> => {
 	const value = await kvGetLink(env.KV, id);
 	if (value !== null) {
-		return value as LinkKVSchema;
+		return value;
 	}
 
 	// KV miss — try D1

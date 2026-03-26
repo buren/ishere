@@ -1,18 +1,11 @@
-import { getLinkWithD1Fallback } from '../../utils/get-link-with-d1-fallback';
-import { LinkKVSchema } from '../../types';
 import { LinkQrRequestOptionsSchema, LinkWithNamespaceRequestParamsSchema, LinkWithNRequestParamsSchema } from '../../schema';
-import { notFoundHtml, linkPreviewHtml, passwordPromptHtml, scheduledNotActiveHtml } from '../../html';
+import { notFoundHtml } from '../../html';
 import { createRoute, z } from '@hono/zod-openapi';
 import { Context } from 'hono';
-import { linkWithUrl } from '../../utils/link-with-url';
-import qrResponse from '../../utils/qr-response';
-import { notFoundQrResponse } from '../../utils/not-found-qr-response';
-import trackLinkRedirect from '../../analytics/track-link-redirect';
-import { defaultRedirectStatusCode, reservedPaths } from '../../utils/constants';
+import { reservedPaths } from '../../utils/constants';
 import { createApp } from '../app';
-import { verifyPassword } from '../../utils/hash-password';
+import { handleQrRequest, handleInfoRequest, handleRedirectRequest, handlePasswordSubmit } from './handlers';
 
-// Link shortening routes
 const app = createApp();
 
 // Short-circuit reserved paths to avoid unnecessary KV/D1 lookups
@@ -36,6 +29,17 @@ const qrResponseDoc = {
 	},
 };
 
+const previewResponseDoc = {
+	200: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Link preview page.',
+	},
+	404: {
+		content: { 'text/html': { schema: z.string() } },
+		description: 'Short link not found.',
+	},
+};
+
 const redirectResponseDoc = {
 	301: {
 		content: { 'text/html': { schema: z.string() } },
@@ -51,48 +55,20 @@ const redirectResponseDoc = {
 	},
 };
 
+// --- /:id routes ---
+
 app.openapi(
 	createRoute({
 		method: 'get',
 		path: '/:id/qr',
 		tags: ['QR'],
-		request: {
-			params: LinkWithNRequestParamsSchema,
-			query: LinkQrRequestOptionsSchema,
-		},
+		request: { params: LinkWithNRequestParamsSchema, query: LinkQrRequestOptionsSchema },
 		responses: qrResponseDoc,
 		summary: 'QR code for short link',
 		description: 'Return QR code for short link in various formats. Available formats: png, svg and html.',
 	}),
-	async (c: Context<{ Bindings: Env }>) => {
-		const { id } = c.req.param();
-		const value = await getLinkWithD1Fallback(c.env, id);
-		const { format } = c.req.query();
-
-		if (value === null) {
-			const { contentType, body } = notFoundQrResponse(format);
-			c.header('Content-Type', contentType);
-			c.status(404);
-			return c.body(body);
-		}
-
-		const { url } = linkWithUrl(c.req.url, value as LinkKVSchema);
-		const { contentType, body } = await qrResponse(url, c.req.query());
-		c.header('Content-Type', contentType);
-		return c.body(body);
-	}
+	async (c: Context<{ Bindings: Env }>) => handleQrRequest(c, c.req.param('id'))
 );
-
-const previewResponseDoc = {
-	200: {
-		content: { 'text/html': { schema: z.string() } },
-		description: 'Link preview page.',
-	},
-	404: {
-		content: { 'text/html': { schema: z.string() } },
-		description: 'Short link not found.',
-	},
-};
 
 app.openapi(
 	createRoute({
@@ -104,18 +80,7 @@ app.openapi(
 		summary: 'Preview short link',
 		description: 'Show a preview page with link metadata instead of redirecting.',
 	}),
-	async (c: Context<{ Bindings: Env }>) => {
-		const { id } = c.req.param();
-		const value = await getLinkWithD1Fallback(c.env, id);
-
-		if (value === null) {
-			c.status(404);
-			return c.html(notFoundHtml);
-		}
-
-		const link = linkWithUrl(c.req.url, value as LinkKVSchema);
-		return c.html(linkPreviewHtml(link));
-	}
+	async (c: Context<{ Bindings: Env }>) => handleInfoRequest(c, c.req.param('id'))
 );
 
 app.openapi(
@@ -129,94 +94,31 @@ app.openapi(
 		description: 'Redirect short link to destination URL.',
 	}),
 	async (c: Context<{ Bindings: Env }>) => {
-		const { id } = c.req.param();
-		const value = await getLinkWithD1Fallback(c.env, id);
-
-		if (value === null) {
-			c.status(404);
-			return c.render(notFoundHtml);
-		}
-
-		const link = value as LinkKVSchema;
-
-		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
-			return c.html(scheduledNotActiveHtml(link.scheduledAt));
-		}
-
-		if (link.password) {
-			return c.html(passwordPromptHtml(`/${id}`));
-		}
-
-		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
-
-		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+		const id = c.req.param('id');
+		return handleRedirectRequest(c, id, `/${id}`);
 	}
 );
 
 app.post('/:id', async (c: Context<{ Bindings: Env }>) => {
-	const { id } = c.req.param();
-	const value = await getLinkWithD1Fallback(c.env, id);
-
-	if (value === null) {
-		c.status(404);
-		return c.render(notFoundHtml);
-	}
-
-	const link = value as LinkKVSchema;
-
-	if (!link.password) {
-		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
-			return c.html(scheduledNotActiveHtml(link.scheduledAt));
-		}
-		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
-		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
-	}
-
-	const body = await c.req.parseBody();
-	const password = body['password'];
-
-	if (typeof password !== 'string' || !(await verifyPassword(password, link.password))) {
-		return c.html(passwordPromptHtml(`/${id}`, 'Incorrect password.'));
-	}
-
-	if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
-		return c.html(scheduledNotActiveHtml(link.scheduledAt));
-	}
-
-	c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
-	return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+	const id = c.req.param('id');
+	return handlePasswordSubmit(c, id, `/${id}`);
 });
+
+// --- /:namespace/:shortPath routes ---
 
 app.openapi(
 	createRoute({
 		method: 'get',
 		path: '/:namespace/:shortPath/qr',
 		tags: ['QR'],
-		request: {
-			params: LinkWithNamespaceRequestParamsSchema,
-			query: LinkQrRequestOptionsSchema,
-		},
+		request: { params: LinkWithNamespaceRequestParamsSchema, query: LinkQrRequestOptionsSchema },
 		responses: qrResponseDoc,
 		summary: 'QR code for link with namespace',
 		description: 'Return QR code for short link in various formats. Available formats: png, svg and html.',
 	}),
 	async (c: Context<{ Bindings: Env }>) => {
 		const { namespace, shortPath } = c.req.param();
-		const id = `${namespace}-${shortPath}`;
-		const value = await getLinkWithD1Fallback(c.env, id);
-		const { format } = c.req.query();
-
-		if (value === null) {
-			const { contentType, body } = notFoundQrResponse(format);
-			c.header('Content-Type', contentType);
-			c.status(404);
-			return c.body(body);
-		}
-
-		const { url } = linkWithUrl(c.req.url, value as LinkKVSchema);
-		const { contentType, body } = await qrResponse(url, c.req.query());
-		c.header('Content-Type', contentType);
-		return c.body(body);
+		return handleQrRequest(c, `${namespace}-${shortPath}`);
 	}
 );
 
@@ -232,16 +134,7 @@ app.openapi(
 	}),
 	async (c: Context<{ Bindings: Env }>) => {
 		const { namespace, shortPath } = c.req.param();
-		const id = `${namespace}-${shortPath}`;
-		const value = await getLinkWithD1Fallback(c.env, id);
-
-		if (value === null) {
-			c.status(404);
-			return c.html(notFoundHtml);
-		}
-
-		const link = linkWithUrl(c.req.url, value as LinkKVSchema);
-		return c.html(linkPreviewHtml(link));
+		return handleInfoRequest(c, `${namespace}-${shortPath}`);
 	}
 );
 
@@ -257,65 +150,16 @@ app.openapi(
 	}),
 	async (c: Context<{ Bindings: Env }>) => {
 		const { namespace, shortPath } = c.req.param();
-		const id = `${namespace}-${shortPath}`;
-		const value = await getLinkWithD1Fallback(c.env, id);
-
-		if (value === null) {
-			c.status(404);
-			return c.render(notFoundHtml);
-		}
-
-		const link = value as LinkKVSchema;
-
-		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
-			return c.html(scheduledNotActiveHtml(link.scheduledAt));
-		}
-
-		if (link.password) {
-			return c.html(passwordPromptHtml(`/${namespace}/${shortPath}`));
-		}
-
-		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
-
-		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+		return handleRedirectRequest(c, `${namespace}-${shortPath}`, `/${namespace}/${shortPath}`);
 	}
 );
 
 app.post('/:namespace/:shortPath', async (c: Context<{ Bindings: Env }>) => {
 	const { namespace, shortPath } = c.req.param();
-	const id = `${namespace}-${shortPath}`;
-	const value = await getLinkWithD1Fallback(c.env, id);
-
-	if (value === null) {
-		c.status(404);
-		return c.render(notFoundHtml);
-	}
-
-	const link = value as LinkKVSchema;
-
-	if (!link.password) {
-		if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
-			return c.html(scheduledNotActiveHtml(link.scheduledAt));
-		}
-		c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
-		return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
-	}
-
-	const body = await c.req.parseBody();
-	const password = body['password'];
-
-	if (typeof password !== 'string' || !(await verifyPassword(password, link.password))) {
-		return c.html(passwordPromptHtml(`/${namespace}/${shortPath}`, 'Incorrect password.'));
-	}
-
-	if (link.scheduledAt && new Date(link.scheduledAt) > new Date()) {
-		return c.html(scheduledNotActiveHtml(link.scheduledAt));
-	}
-
-	c.executionCtx.waitUntil(trackLinkRedirect(id, c.req.raw, c.env));
-	return c.redirect(link.destinationUrl, link.redirectStatusCode ?? defaultRedirectStatusCode);
+	return handlePasswordSubmit(c, `${namespace}-${shortPath}`, `/${namespace}/${shortPath}`);
 });
 
+// Catch-all 404
 app.use('/*', async (c: Context<{ Bindings: Env }>) => {
 	c.status(404);
 	return c.render(notFoundHtml);
