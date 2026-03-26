@@ -10,8 +10,10 @@ A fast, edge-deployed link shortening service built with [Hono](https://hono.dev
 - **Namespaces** — organize links under a namespace prefix
 - **QR codes** — append `/qr` to any short link for SVG, PNG, or HTML output
 - **Analytics** — per-link redirect stats with bot detection, grouped by hour or day
+- **Password protection** — optionally require a password before redirecting
+- **Link scheduling** — set a go-live date so the link only activates at a specific time
 - **Link expiration** — optional TTL-based expiry with automatic cleanup
-- **Slack integration** — slash commands, bot notifications on link create/update, interactive buttons for stats and details
+- **Slack integration** — slash commands, global shortcuts, bot notifications, interactive buttons for stats and details
 - **Webhooks** — receive POST notifications on link create/update/delete with HMAC signing, works with Zapier, Make, and custom integrations
 - **OpenAPI docs** — interactive API reference at `/`
 - **No propagation delay** — links work immediately after creation, even across regions (see [Architecture](#architecture))
