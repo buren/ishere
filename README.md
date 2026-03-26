@@ -41,24 +41,29 @@ npm run dev
 
 ## API
 
-### Link CRUD (auth required)
+### Link API
 
-| Method   | Path                          | Description              |
-| -------- | ----------------------------- | ------------------------ |
-| `POST`   | `/api/link`                   | Create short link        |
-| `GET`    | `/api/link/:id`               | Get short link           |
-| `PATCH`  | `/api/link/:id`               | Update short link        |
-| `DELETE` | `/api/link/:id`               | Delete short link        |
-| `GET`    | `/api/link/:id/stats/:groupBy`| Get link stats (day/hour)|
+| Method   | Path                              | Auth | Description              |
+| -------- | --------------------------------- | ---- | ------------------------ |
+| `POST`   | `/api/link`                       | Yes  | Create short link        |
+| `GET`    | `/api/link/:id`                   | No   | Get short link           |
+| `PATCH`  | `/api/link/:id`                   | Yes  | Update short link        |
+| `DELETE` | `/api/link/:id`                   | Yes  | Delete short link        |
+| `GET`    | `/api/link/:id/stats/:groupBy`    | Yes  | Get link stats (day/hour)|
+| `GET`    | `/api/link/namespace/:namespace`  | No   | List links by namespace  |
 
 ### Redirects (no auth)
 
-| Method | Path                        | Description                     |
-| ------ | --------------------------- | ------------------------------- |
-| `GET`  | `/:id`                      | Redirect to destination         |
-| `GET`  | `/:namespace/:shortPath`    | Redirect (namespaced)           |
-| `GET`  | `/:id/qr`                   | QR code for short link          |
-| `GET`  | `/:namespace/:shortPath/qr` | QR code (namespaced)            |
+| Method | Path                             | Description                          |
+| ------ | -------------------------------- | ------------------------------------ |
+| `GET`  | `/:id`                           | Redirect to destination              |
+| `GET`  | `/:namespace/:shortPath`         | Redirect (namespaced)                |
+| `POST` | `/:id`                           | Password form submission             |
+| `POST` | `/:namespace/:shortPath`         | Password form submission (namespaced)|
+| `GET`  | `/:id/info`                      | Link preview page                    |
+| `GET`  | `/:namespace/:shortPath/info`    | Link preview page (namespaced)       |
+| `GET`  | `/:id/qr`                        | QR code for short link               |
+| `GET`  | `/:namespace/:shortPath/qr`      | QR code (namespaced)                 |
 
 ### Other
 
