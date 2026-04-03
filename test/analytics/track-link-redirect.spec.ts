@@ -74,6 +74,16 @@ describe('trackLinkRedirect', () => {
 		expect(args.blobs[0]).toBe('unknown');
 	});
 
+	it('should silently skip tracking when REDIRECTS binding is not configured', async () => {
+		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const env = { } as unknown as Env;
+
+		await trackLinkRedirect('no-analytics', makeRequest(), env);
+
+		expect(consoleSpy).not.toHaveBeenCalled();
+		consoleSpy.mockRestore();
+	});
+
 	it('should catch and log write errors', async () => {
 		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const env = {

@@ -23,6 +23,8 @@ const parseCoordinate = (coord: string | undefined): number =>
 	coord ? parseFloat(coord) : 0;
 
 const trackLinkRedirect = async (id: string, { cf: cfProps, headers }: Request, env: Env) => {
+	if (!env.REDIRECTS) return;
+
 	const cf = cfProps || {};
 	const userAgent = headers.get('user-agent') || 'unknown';
 
