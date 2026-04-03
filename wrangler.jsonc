@@ -30,10 +30,6 @@
 		}
   ],
 
-  "analytics_engine_datasets": [
-    { "binding": "REDIRECTS", "dataset": "ishere-redirects" }
-  ],
-
   "triggers": {
     "crons": [ "0 * * * *" ]
   }

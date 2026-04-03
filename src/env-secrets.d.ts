@@ -1,4 +1,5 @@
 interface Env {
+	REDIRECTS?: AnalyticsEngineDataset;
 	ANALYTICS_API_TOKEN?: string;
 	API_KEY: string;
 	DEFAULT_SHORT_PATH_LENGTH?: string;

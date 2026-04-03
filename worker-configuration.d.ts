@@ -8,7 +8,6 @@ declare namespace Cloudflare {
 		ACCOUNT_ID: "TODO";
 		API_TOKEN: string;
 		D1: D1Database;
-		REDIRECTS: AnalyticsEngineDataset;
 	}
 }
 interface Env extends Cloudflare.Env {}
